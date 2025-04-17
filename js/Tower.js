@@ -350,7 +350,9 @@ class Tower {
             this.lastProjectileUpdateTime = currentTime - 16; // 16ms = environ 60fps
         }
         
-        const deltaTime = (currentTime - this.lastProjectileUpdateTime) / 1000; // Convertir en secondes
+        // Utiliser un facteur d'ajustement encore plus faible pour ralentir considérablement les projectiles
+        // et les rendre très visibles pendant leur trajet
+        const deltaTime = (currentTime - this.lastProjectileUpdateTime) * 0.005; // Facteur extrêmement réduit
         this.lastProjectileUpdateTime = currentTime;
         
         for (let i = this.projectiles.length - 1; i >= 0; i--) {

@@ -59,6 +59,7 @@ class Projectile {
      * @returns {boolean} Vrai si le projectile a touché sa cible
      */
     update(deltaTime) {
+        // Si le projectile a déjà touché, doit être supprimé, ou la cible n'existe plus
         if (this.hit || this.toRemove || !this.target || (this.target.dead || !this.target.isAlive())) {
             this.remove();
             return false;
@@ -69,12 +70,16 @@ class Projectile {
         const dy = this.target.y - this.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         
-        // Si le projectile a atteint la cible
-        if (distance < this.target.size / 2 + this.size / 2) {
+        // Si le projectile est suffisamment proche de la cible (collision)
+        // Utiliser le rayon de l'ennemi comme référence principale
+        const hitDistance = this.target.size / 2;
+        
+        // Vérifier si le projectile a touché l'ennemi
+        if (distance <= hitDistance) {
             this.hit = true;
             
             // Appliquer les dégâts à la cible principale
-            this.target.takeDamage(this.damage, this.level); // Passer le niveau aux dégâts
+            this.target.takeDamage(this.damage, this.level);
             
             // Ajouter un effet d'impact selon le niveau
             this.createImpactEffect();
@@ -84,7 +89,11 @@ class Projectile {
                 this.applySplashDamage();
             }
             
-            this.remove();
+            // Retarder légèrement la suppression du projectile pour que l'effet visuel soit visible
+            setTimeout(() => {
+                this.remove();
+            }, 50);
+            
             return true;
         }
         
@@ -141,43 +150,36 @@ class Projectile {
      * Applique les dégâts de zone autour de la cible principale
      */
     applySplashDamage() {
-        const enemies = document.querySelectorAll('.enemy');
+        // Si l'instance de jeu n'est pas disponible, ne rien faire
+        if (!window.gameInstance || !window.gameInstance.enemies) {
+            return;
+        }
         
-        // Pour chaque ennemi à l'écran
-        enemies.forEach(enemyElement => {
-            const enemyId = enemyElement.dataset.enemyId;
-            
-            // Éviter de toucher la cible principale à nouveau
-            if (enemyId && enemyId !== this.target.id.toString()) {
-                // Récupérer la position de l'ennemi
-                const rect = enemyElement.getBoundingClientRect();
-                const gameRect = this.gameBoard.getBoundingClientRect();
-                
-                const enemyX = rect.left + rect.width / 2 - gameRect.left;
-                const enemyY = rect.top + rect.height / 2 - gameRect.top;
-                
-                // Calculer la distance avec le point d'impact
-                const dx = enemyX - this.target.x;
-                const dy = enemyY - this.target.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                // Si l'ennemi est dans le rayon de splash
-                if (distance <= this.splashRadius) {
-                    // Calculer les dégâts (diminuent avec la distance)
-                    const damagePercent = this.splashDamagePercent * (1 - distance / this.splashRadius);
-                    const splashDamage = Math.round(this.damage * damagePercent / 100);
-                    
-                    // Trouver l'instance de l'ennemi et lui appliquer les dégâts
-                    const enemy = window.gameInstance.getEnemyById(enemyId);
-                    if (enemy) {
-                        enemy.takeDamage(splashDamage, this.level); // Passer le niveau aux dégâts
-                    }
-                    
-                    // Créer une ligne d'effet de splash
-                    this.createSplashLine(this.target.x, this.target.y, enemyX, enemyY);
-                }
+        // Utiliser directement la liste des ennemis de l'instance du jeu au lieu du DOM
+        for (const enemy of window.gameInstance.enemies) {
+            // Éviter de toucher la cible principale à nouveau et ignorer les ennemis morts
+            if (enemy.id === this.target.id || !enemy.isAlive()) {
+                continue;
             }
-        });
+            
+            // Calculer la distance avec le point d'impact
+            const dx = enemy.x - this.target.x;
+            const dy = enemy.y - this.target.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Si l'ennemi est dans le rayon de splash
+            if (distance <= this.splashRadius) {
+                // Calculer les dégâts (diminuent avec la distance)
+                const damagePercent = this.splashDamagePercent * (1 - distance / this.splashRadius);
+                const splashDamage = Math.round(this.damage * damagePercent / 100);
+                
+                // Appliquer les dégâts à l'ennemi
+                enemy.takeDamage(splashDamage, this.level);
+                
+                // Créer une ligne d'effet de splash visible
+                this.createSplashLine(this.target.x, this.target.y, enemy.x, enemy.y);
+            }
+        }
     }
     
     /**

@@ -10,7 +10,7 @@ class Game {
         this.towers = [];
         this.enemies = [];
         this.projectiles = [];
-        this.money = 100;
+        this.money = 200;
         this.lives = 20;
         this.wave = 0;
         this.waveInProgress = false;
