@@ -292,3 +292,109 @@ button#start-wave:hover {
         box-shadow: 0 0 6px currentColor;
     }
 }
+
+/* Effet d'explosion pour les impacts de projectiles */
+.impact-effect {
+    position: absolute;
+    border-radius: 50%;
+    z-index: 15;
+    transform: translate(-50%, -50%) scale(0);
+    pointer-events: none;
+    animation: explosion 0.5s ease-out forwards;
+}
+
+@keyframes explosion {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0.9;
+        box-shadow: 0 0 5px currentColor;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 0.7;
+        box-shadow: 0 0 20px currentColor, 0 0 40px currentColor;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(2);
+        opacity: 0;
+        box-shadow: 0 0 1px currentColor;
+    }
+}
+
+/* Effet de particules d'explosion */
+.explosion-particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: currentColor;
+    z-index: 14;
+    pointer-events: none;
+    opacity: 0;
+    animation: particle-fly 0.6s ease-out forwards;
+}
+
+@keyframes particle-fly {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.9;
+    }
+    100% {
+        transform: translate(var(--tx), var(--ty)) scale(0);
+        opacity: 0;
+    }
+}
+
+/* Style pour la traînée des projectiles de niveau supérieur */
+.projectile-trail {
+    position: relative;
+}
+
+.projectile-trail::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: inherit;
+    z-index: -1;
+    opacity: 0.7;
+    animation: fade-trail 0.3s linear;
+}
+
+@keyframes fade-trail {
+    0% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+    100% {
+        transform: scale(2.5);
+        opacity: 0;
+    }
+}
+
+/* Style pour les lignes d'effet splash */
+.splash-line {
+    position: absolute;
+    height: 2px;
+    transform-origin: left center;
+    opacity: 0.8;
+    z-index: 13;
+    pointer-events: none;
+    animation: splash-pulse 0.3s ease-out;
+}
+
+@keyframes splash-pulse {
+    0% {
+        opacity: 0;
+        filter: blur(0);
+    }
+    50% {
+        opacity: 0.8;
+        filter: blur(1px);
+    }
+    100% {
+        opacity: 0;
+        filter: blur(2px);
+    }
+}

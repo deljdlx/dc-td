@@ -97,7 +97,8 @@ class Projectile {
             return true;
         }
         
-        // Sinon, déplacer le projectile vers la cible
+        // Calculer le déplacement à vitesse constante
+        // Normaliser le vecteur de direction et multiplier par la vitesse et le temps écoulé
         const moveX = (dx / distance) * this.speed * deltaTime;
         const moveY = (dy / distance) * this.speed * deltaTime;
         
@@ -125,25 +126,60 @@ class Projectile {
         
         impact.style.width = `${size}px`;
         impact.style.height = `${size}px`;
-        impact.style.left = `${this.target.x - size / 2}px`;
-        impact.style.top = `${this.target.y - size / 2}px`;
+        impact.style.left = `${this.target.x}px`;
+        impact.style.top = `${this.target.y}px`;
         impact.style.backgroundColor = this.color;
         impact.style.opacity = '0.7';
         
         // Ajouter l'élément au jeu
         this.gameBoard.appendChild(impact);
         
-        // Animer l'effet et le supprimer
-        setTimeout(() => {
-            impact.style.transform = 'scale(2)';
-            impact.style.opacity = '0';
-        }, 10);
+        // Créer des particules d'explosion
+        this.createExplosionParticles(this.target.x, this.target.y, 8 + this.level * 2);
         
+        // Animer l'effet et le supprimer
         setTimeout(() => {
             if (impact.parentNode) {
                 impact.parentNode.removeChild(impact);
             }
         }, duration);
+    }
+    
+    /**
+     * Crée des particules d'explosion à partir d'un point
+     * @param {number} x Position X du centre de l'explosion
+     * @param {number} y Position Y du centre de l'explosion
+     * @param {number} count Nombre de particules à générer
+     */
+    createExplosionParticles(x, y, count) {
+        for (let i = 0; i < count; i++) {
+            // Créer une particule
+            const particle = document.createElement('div');
+            particle.className = 'explosion-particle';
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
+            particle.style.color = this.color;
+            
+            // Direction aléatoire pour chaque particule
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 30 + Math.random() * 30 * this.level;
+            const tx = Math.cos(angle) * distance;
+            const ty = Math.sin(angle) * distance;
+            
+            // Définir la direction de l'animation via CSS variables
+            particle.style.setProperty('--tx', `${tx}px`);
+            particle.style.setProperty('--ty', `${ty}px`);
+            
+            // Ajouter au DOM
+            this.gameBoard.appendChild(particle);
+            
+            // Supprimer après l'animation
+            setTimeout(() => {
+                if (particle.parentNode) {
+                    particle.parentNode.removeChild(particle);
+                }
+            }, 600);
+        }
     }
     
     /**

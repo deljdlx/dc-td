@@ -349,16 +349,15 @@ class Tower {
         if (!this.lastProjectileUpdateTime) {
             this.lastProjectileUpdateTime = currentTime - 16; // 16ms = environ 60fps
         }
-        
-        // Utiliser un facteur d'ajustement encore plus faible pour ralentir considérablement les projectiles
-        // et les rendre très visibles pendant leur trajet
-        const deltaTime = (currentTime - this.lastProjectileUpdateTime) * 0.005; // Facteur extrêmement réduit
+
+        // Utiliser un deltaTime normalisé pour une vitesse constante
+        const deltaTime = (currentTime - this.lastProjectileUpdateTime) / 200; // Convertir en secondes
         this.lastProjectileUpdateTime = currentTime;
         
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
             const projectile = this.projectiles[i];
             const hitTarget = projectile.update(deltaTime);
-            
+
             // Si le projectile a touché sa cible ou a été supprimé
             if (hitTarget) {
                 this.projectiles.splice(i, 1);
