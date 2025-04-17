@@ -1,0 +1,234 @@
+class Projectile {
+    /**
+     * Crée un nouveau projectile
+     * @param {number} x Position X de départ
+     * @param {number} y Position Y de départ
+     * @param {Enemy} target Ennemi ciblé
+     * @param {number} damage Dégâts infligés
+     * @param {string} color Couleur du projectile
+     * @param {number} speed Vitesse du projectile
+     * @param {HTMLElement} gameBoard Élément conteneur du jeu
+     * @param {number} splashRadius Rayon des dégâts de zone (0 = pas de splash)
+     * @param {number} splashDamagePercent Pourcentage des dégâts en zone
+     * @param {number} level Niveau du projectile (hérité de la tour)
+     */
+    constructor(x, y, target, damage, color, speed, gameBoard, splashRadius = 0, splashDamagePercent = 100, level = 1) {
+        this.id = Utils.generateId();
+        this.x = x;
+        this.y = y;
+        this.target = target;
+        this.damage = damage;
+        this.color = color;
+        this.speed = speed;
+        this.gameBoard = gameBoard;
+        this.splashRadius = splashRadius;
+        this.splashDamagePercent = splashDamagePercent;
+        this.level = level; // Niveau du projectile (hérité de la tour)
+        
+        this.size = 6 + (level - 1) * 2; // Taille du projectile augmente avec le niveau
+        this.hit = false;
+        this.toRemove = false;
+        
+        this.element = document.createElement('div');
+        this.element.className = 'projectile';
+        this.element.id = `projectile-${this.id}`;
+        this.element.style.width = `${this.size}px`;
+        this.element.style.height = `${this.size}px`;
+        this.element.style.backgroundColor = this.color;
+        this.element.style.left = `${this.x - this.size / 2}px`;
+        this.element.style.top = `${this.y - this.size / 2}px`;
+        
+        // Ajouter un effet visuel selon le niveau
+        if (level > 1) {
+            // Ajouter une bordure brillante pour les niveaux supérieurs
+            const glowSize = level * 1.5;
+            this.element.style.boxShadow = `0 0 ${glowSize}px ${this.color}`;
+            
+            // Ajouter une traînée pour les niveaux supérieurs
+            if (level >= 3) {
+                this.element.classList.add('projectile-trail');
+            }
+        }
+        
+        this.gameBoard.appendChild(this.element);
+    }
+    
+    /**
+     * Met à jour la position du projectile
+     * @param {number} deltaTime Temps écoulé depuis la dernière mise à jour
+     * @returns {boolean} Vrai si le projectile a touché sa cible
+     */
+    update(deltaTime) {
+        if (this.hit || this.toRemove || !this.target || (this.target.dead || !this.target.isAlive())) {
+            this.remove();
+            return false;
+        }
+        
+        // Calculer la direction vers la cible
+        const dx = this.target.x - this.x;
+        const dy = this.target.y - this.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        // Si le projectile a atteint la cible
+        if (distance < this.target.size / 2 + this.size / 2) {
+            this.hit = true;
+            
+            // Appliquer les dégâts à la cible principale
+            this.target.takeDamage(this.damage, this.level); // Passer le niveau aux dégâts
+            
+            // Ajouter un effet d'impact selon le niveau
+            this.createImpactEffect();
+            
+            // Si le projectile a des dégâts de zone
+            if (this.splashRadius > 0) {
+                this.applySplashDamage();
+            }
+            
+            this.remove();
+            return true;
+        }
+        
+        // Sinon, déplacer le projectile vers la cible
+        const moveX = (dx / distance) * this.speed * deltaTime;
+        const moveY = (dy / distance) * this.speed * deltaTime;
+        
+        this.x += moveX;
+        this.y += moveY;
+        
+        // Mettre à jour la position visuelle
+        this.element.style.left = `${this.x - this.size / 2}px`;
+        this.element.style.top = `${this.y - this.size / 2}px`;
+        
+        return false;
+    }
+    
+    /**
+     * Crée un effet visuel d'impact lorsque le projectile touche sa cible
+     */
+    createImpactEffect() {
+        // Créer un élément pour l'effet d'impact
+        const impact = document.createElement('div');
+        impact.className = 'impact-effect';
+        
+        // Personnaliser l'effet selon le niveau
+        const size = 20 + (this.level - 1) * 10;
+        const duration = 300 + (this.level - 1) * 100;
+        
+        impact.style.width = `${size}px`;
+        impact.style.height = `${size}px`;
+        impact.style.left = `${this.target.x - size / 2}px`;
+        impact.style.top = `${this.target.y - size / 2}px`;
+        impact.style.backgroundColor = this.color;
+        impact.style.opacity = '0.7';
+        
+        // Ajouter l'élément au jeu
+        this.gameBoard.appendChild(impact);
+        
+        // Animer l'effet et le supprimer
+        setTimeout(() => {
+            impact.style.transform = 'scale(2)';
+            impact.style.opacity = '0';
+        }, 10);
+        
+        setTimeout(() => {
+            if (impact.parentNode) {
+                impact.parentNode.removeChild(impact);
+            }
+        }, duration);
+    }
+    
+    /**
+     * Applique les dégâts de zone autour de la cible principale
+     */
+    applySplashDamage() {
+        const enemies = document.querySelectorAll('.enemy');
+        
+        // Pour chaque ennemi à l'écran
+        enemies.forEach(enemyElement => {
+            const enemyId = enemyElement.dataset.enemyId;
+            
+            // Éviter de toucher la cible principale à nouveau
+            if (enemyId && enemyId !== this.target.id.toString()) {
+                // Récupérer la position de l'ennemi
+                const rect = enemyElement.getBoundingClientRect();
+                const gameRect = this.gameBoard.getBoundingClientRect();
+                
+                const enemyX = rect.left + rect.width / 2 - gameRect.left;
+                const enemyY = rect.top + rect.height / 2 - gameRect.top;
+                
+                // Calculer la distance avec le point d'impact
+                const dx = enemyX - this.target.x;
+                const dy = enemyY - this.target.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // Si l'ennemi est dans le rayon de splash
+                if (distance <= this.splashRadius) {
+                    // Calculer les dégâts (diminuent avec la distance)
+                    const damagePercent = this.splashDamagePercent * (1 - distance / this.splashRadius);
+                    const splashDamage = Math.round(this.damage * damagePercent / 100);
+                    
+                    // Trouver l'instance de l'ennemi et lui appliquer les dégâts
+                    const enemy = window.gameInstance.getEnemyById(enemyId);
+                    if (enemy) {
+                        enemy.takeDamage(splashDamage, this.level); // Passer le niveau aux dégâts
+                    }
+                    
+                    // Créer une ligne d'effet de splash
+                    this.createSplashLine(this.target.x, this.target.y, enemyX, enemyY);
+                }
+            }
+        });
+    }
+    
+    /**
+     * Crée une ligne visuelle pour montrer l'effet de splash entre deux points
+     * @param {number} x1 Position X du point d'impact
+     * @param {number} y1 Position Y du point d'impact
+     * @param {number} x2 Position X de l'ennemi touché
+     * @param {number} y2 Position Y de l'ennemi touché
+     */
+    createSplashLine(x1, y1, x2, y2) {
+        // Calculer la longueur et l'angle de la ligne
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const length = Math.sqrt(dx * dx + dy * dy);
+        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        
+        // Créer l'élément de ligne
+        const line = document.createElement('div');
+        line.className = 'splash-line';
+        line.style.width = `${length}px`;
+        line.style.left = `${x1}px`;
+        line.style.top = `${y1}px`;
+        line.style.transform = `rotate(${angle}deg)`;
+        line.style.backgroundColor = this.color;
+        
+        // Personnaliser selon le niveau
+        line.style.height = `${2 + this.level}px`;
+        line.style.opacity = '0.6';
+        
+        // Ajouter l'élément au jeu
+        this.gameBoard.appendChild(line);
+        
+        // Animer et supprimer
+        setTimeout(() => {
+            line.style.opacity = '0';
+        }, 50);
+        
+        setTimeout(() => {
+            if (line.parentNode) {
+                line.parentNode.removeChild(line);
+            }
+        }, 300);
+    }
+    
+    /**
+     * Supprime le projectile et son élément DOM
+     */
+    remove() {
+        this.toRemove = true;
+        if (this.element && this.element.parentNode) {
+            this.element.parentNode.removeChild(this.element);
+        }
+    }
+}

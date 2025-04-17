@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tower Defence</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="hud">
+            <div class="money">Or: <span id="money">100</span></div>
+            <div class="lives">Vies: <span id="lives">20</span></div>
+            <div class="wave">Vague: <span id="wave">0</span></div>
+            <button id="start-wave">Démarrer Vague</button>
+        </div>
+        <div id="gameBoard" class="game-board">
+            <!-- La carte du jeu sera générée ici -->
+        </div>
+        <div class="tower-selection">
+            <h3>Tours disponibles</h3>
+            <div id="tower-buttons"></div>
+        </div>
+    </div>
+
+    <!-- Chargement des classes -->
+    <script src="js/Utils.js"></script>
+    <script src="js/Map.js"></script>
+    <script src="js/Tower.js"></script>
+    <script src="js/Enemy.js"></script>
+    <script src="js/Projectile.js"></script>
+    <script src="js/Game.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

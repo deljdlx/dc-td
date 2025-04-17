@@ -1,0 +1,127 @@
+{
+  "map": {
+    "width": 10,
+    "height": 8,
+    "cellSize": 50,
+    "startPoint": {"x": 0, "y": 3},
+    "endPoint": {"x": 9, "y": 4},
+    "path": [
+      {"x": 0, "y": 3},
+      {"x": 1, "y": 3},
+      {"x": 2, "y": 3},
+      {"x": 3, "y": 3},
+      {"x": 4, "y": 3},
+      {"x": 5, "y": 3},
+      {"x": 6, "y": 3},
+      {"x": 6, "y": 4},
+      {"x": 7, "y": 4},
+      {"x": 8, "y": 4},
+      {"x": 9, "y": 4}
+    ]
+  },
+  "towers": [
+    {
+      "id": "archer",
+      "name": "Tour d'archer",
+      "damage": 10,
+      "range": 150,
+      "fireRate": 1,
+      "cost": 50,
+      "color": "#27ae60",
+      "projectileColor": "#2ecc71",
+      "projectileSpeed": 20,
+      "splashRadius": 0,
+      "splashDamagePercent": 100
+    },
+    {
+      "id": "cannon",
+      "name": "Tour de canon",
+      "damage": 25,
+      "range": 120,
+      "fireRate": 0.5,
+      "cost": 100,
+      "color": "#c0392b",
+      "projectileColor": "#e74c3c",
+      "projectileSpeed": 15,
+      "splashRadius": 50,
+      "splashDamagePercent": 70
+    },
+    {
+      "id": "magic",
+      "name": "Tour magique",
+      "damage": 15,
+      "range": 200,
+      "fireRate": 0.8,
+      "cost": 150,
+      "color": "#8e44ad",
+      "projectileColor": "#9b59b6",
+      "projectileSpeed": 18,
+      "splashRadius": 30,
+      "splashDamagePercent": 50
+    }
+  ],
+  "enemies": [
+    {
+      "id": "goblin",
+      "name": "Gobelin",
+      "health": 40,
+      "speed": 1.2,
+      "reward": 10,
+      "damage": 1,
+      "color": "#2ecc71",
+      "size": 20
+    },
+    {
+      "id": "orc",
+      "name": "Orc",
+      "health": 100,
+      "speed": 0.8,
+      "reward": 20,
+      "damage": 2,
+      "color": "#e67e22",
+      "size": 30
+    },
+    {
+      "id": "troll",
+      "name": "Troll",
+      "health": 200,
+      "speed": 0.5,
+      "reward": 30,
+      "damage": 3,
+      "color": "#e74c3c",
+      "size": 35
+    }
+  ],
+  "waves": [
+    {
+      "enemies": [{"type": "goblin", "count": 10, "delay": 1.5}]
+    },
+    {
+      "enemies": [
+        {"type": "goblin", "count": 15, "delay": 1.2},
+        {"type": "orc", "count": 5, "delay": 2}
+      ]
+    },
+    {
+      "enemies": [
+        {"type": "goblin", "count": 10, "delay": 1},
+        {"type": "orc", "count": 10, "delay": 1.5},
+        {"type": "troll", "count": 2, "delay": 3}
+      ]
+    },
+    {
+      "enemies": [
+        {"type": "goblin", "count": 20, "delay": 0.8},
+        {"type": "orc", "count": 15, "delay": 1.2},
+        {"type": "troll", "count": 5, "delay": 2}
+      ]
+    },
+    {
+      "enemies": [
+        {"type": "goblin", "count": 30, "delay": 0.6},
+        {"type": "orc", "count": 20, "delay": 1},
+        {"type": "troll", "count": 10, "delay": 1.5}
+      ]
+    }
+  ]
+}
