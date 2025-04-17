@@ -351,7 +351,7 @@ class Tower {
         }
 
         // Utiliser un deltaTime normalisé pour une vitesse constante
-        const deltaTime = (currentTime - this.lastProjectileUpdateTime) / 200; // Convertir en secondes
+        const deltaTime = (currentTime - this.lastProjectileUpdateTime) / 1000; // Convertir en secondes
         this.lastProjectileUpdateTime = currentTime;
         
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
