@@ -1,82 +1,75 @@
-/* Tower styles */
+/* Tower styling for the tower defense game */
 .tower {
     position: absolute;
     border-radius: 50%;
-    cursor: grab;
-    z-index: 10;
-    transition: transform 0.1s ease-out;
-    transform-origin: center center;
-}
-
-.tower.selected {
-    box-shadow: 0 0 0 3px yellow;
-    z-index: 20;
-}
-
-.tower-range {
-    position: absolute;
-    border-radius: 50%;
-    border: 2px dashed rgba(0, 0, 0, 0.2);
-    z-index: 5;
-    pointer-events: none;
-}
-
-/* Style spécifique pour la portée affichée au survol */
-.tower-range.hover-range {
-    border: 2px dashed rgba(70, 130, 180, 0.6);
-    background-color: rgba(70, 130, 180, 0.1);
-    animation: pulse-range 1.5s infinite alternate;
-}
-
-.tower-selection {
-    padding: 10px;
-    background-color: #34495e;
-    color: white;
-}
-
-#tower-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.tower-button {
-    padding: 5px 10px;
     background-color: #3498db;
+    z-index: 2;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
     color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: grab;
     user-select: none;
-    transition: background-color 0.3s;
 }
 
-.tower-button:hover {
-    background-color: #2980b9;
-}
-
-.tower-button:active {
-    cursor: grabbing;
-}
-
-.placeholder-tower {
-    opacity: 0.6;
+.tower::after {
+    content: '';
     position: absolute;
+    width: 200%;
+    height: 200%;
+    border: 2px dashed rgba(0, 0, 0, 0.2);
     border-radius: 50%;
     pointer-events: none;
-    z-index: 30;
+    opacity: 0;
+    transition: opacity 0.2s;
 }
 
-.dragging-tower {
-    cursor: grabbing !important;
+.tower.selected::after {
+    opacity: 1;
 }
 
-.tower-placing-animation {
+.tower-selector {
     position: absolute;
+    display: flex;
+    gap: 5px;
+    padding: 5px;
+    background-color: rgba(255, 255, 255, 0.8);
     border-radius: 5px;
-    background-color: transparent;
-    border: 2px solid #2ecc71;
-    pointer-events: none;
-    z-index: 25;
-    animation: placeTower 0.3s ease-out;
+    z-index: 3;
+}
+
+.tower-option {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.tower-option:hover {
+    transform: scale(1.1);
+}
+
+.tower-option.basic {
+    background-color: #3498db;
+}
+
+.tower-option.cannon {
+    background-color: #e74c3c;
+}
+
+.tower-option.sniper {
+    background-color: #9b59b6;
+}
+
+.tower-option.cost::before {
+    content: attr(data-cost);
+    position: absolute;
+    bottom: -15px;
+    font-size: 10px;
+    color: #333;
 }
