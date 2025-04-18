@@ -1,3 +1,7 @@
+/**
+ * Classe responsable de l'affichage et de l'interaction d'un projectile
+ * Utilise un modèle pour les données et la logique métier
+ */
 class Projectile {
     /**
      * Crée un nouveau projectile
@@ -13,41 +17,35 @@ class Projectile {
      * @param {number} level Niveau du projectile (hérité de la tour)
      */
     constructor(x, y, target, damage, color, speed, gameBoard, splashRadius = 0, splashDamagePercent = 100, level = 1) {
-        this.id = Utils.generateId();
-        this.x = x;
-        this.y = y;
-        this.target = target;
-        this.damage = damage;
-        this.color = color;
-        this.speed = speed;
+        // Créer le modèle de projectile
+        this.model = new ModelProjectile(x, y, target, damage, color, speed, splashRadius, splashDamagePercent, level);
+        
+        // Propriétés d'affichage
         this.gameBoard = gameBoard;
-        this.splashRadius = splashRadius;
-        this.splashDamagePercent = splashDamagePercent;
-        this.level = level;
-        
         this.size = 6 + (level - 1) * 2;
-        this.hit = false;
-        this.toRemove = false;
+        this.toRemove = false; // Duplication avec le modèle pour compatibilité
         
+        // Créer l'élément DOM
         this.element = document.createElement('div');
         this.element.className = 'projectile';
-        this.element.id = `projectile-${this.id}`;
+        this.element.id = `projectile-${this.model.id}`;
         this.element.style.width = `${this.size}px`;
         this.element.style.height = `${this.size}px`;
-        this.element.style.backgroundColor = this.color;
-        this.element.style.left = `${this.x - this.size / 2}px`;
-        this.element.style.top = `${this.y - this.size / 2}px`;
+        this.element.style.backgroundColor = this.model.color;
+        this.element.style.left = `${this.model.x - this.size / 2}px`;
+        this.element.style.top = `${this.model.y - this.size / 2}px`;
         
         // Ajouter un effet visuel selon le niveau
         if (level > 1) {
             const glowSize = level * 1.5;
-            this.element.style.boxShadow = `0 0 ${glowSize}px ${this.color}`;
+            this.element.style.boxShadow = `0 0 ${glowSize}px ${this.model.color}`;
             
             if (level >= 3) {
                 this.element.classList.add('projectile-trail');
             }
         }
         
+        // Ajouter l'élément au jeu
         this.gameBoard.appendChild(this.element);
     }
 
@@ -57,80 +55,53 @@ class Projectile {
      * @returns {boolean} Vrai si le projectile a touché sa cible
      */
     update(deltaTime) {
-        // Si le projectile a déjà touché, doit être supprimé, ou la cible n'existe plus
-        if (this.hit || this.toRemove || !this.target || !this.target.isAlive()) {
+        // Calculer le mouvement avec le modèle
+        const movement = this.model.calculateMovement(deltaTime);
+        
+        // Si le projectile doit être supprimé
+        if (movement.shouldRemove) {
             this.remove();
             return true;
         }
         
-        // Calculer la direction vers la cible
-        const dx = this.target.x - this.x;
-        const dy = this.target.y - this.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+        // Mettre à jour la position visuelle
+        this.element.style.transition = 'none';
+        this.element.style.left = `${movement.newX}px`;
+        this.element.style.top = `${movement.newY}px`;
         
-        // Normaliser la direction
-        const normalizedDx = distance > 0 ? dx / distance : 0;
-        const normalizedDy = distance > 0 ? dy / distance : 0;
-        
-        // La distance de collision est le rayon de l'ennemi
-        const hitDistance = this.target.size / 2;
-        
-        // Vitesse fixe indépendante du deltaTime pour un mouvement plus régulier
-        const fixedDistancePerFrame = this.speed / 60;
-        
-        // Vérifier si on va atteindre la cible pendant cette frame
-        if (distance <= fixedDistancePerFrame + hitDistance) {
-            // Placer le projectile au bord de la cible pour un impact visuel cohérent
-            if (distance > hitDistance) {
-                const ratio = (distance - hitDistance) / distance;
-                this.x = this.x + (this.target.x - this.x) * ratio;
-                this.y = this.y + (this.target.y - this.y) * ratio;
+        // Réactiver la transition après la mise à jour
+        setTimeout(() => {
+            if (this.element) {
+                this.element.style.transition = '';
             }
+        }, 0);
+        
+        // Si le projectile a touché sa cible
+        if (movement.hasHit) {
+            // Appliquer les dégâts à la cible principale
+            movement.hitTarget.takeDamage(this.model.damage, this.model.level);
             
-            // Mettre à jour la position visuelle
-            this.element.style.transition = 'none';
-            this.element.style.left = `${this.x}px`;
-            this.element.style.top = `${this.y}px`;
-            
-            // Déclencher la collision
-            this.hit = true;
-            this.target.takeDamage(this.damage, this.level);
+            // Créer un effet d'impact visuel
             this.createImpactEffect();
-
+            
             // Appliquer les dégâts de zone si nécessaire
-            if (this.splashRadius > 0) {
+            if (this.model.splashRadius > 0) {
                 this.applySplashDamage();
             }
-
+            
             // Retarder légèrement la suppression pour que l'effet visuel soit visible
             setTimeout(() => {
                 this.remove();
             }, 150);
-
+            
             return true;
-        } else {
-            // Déplacement normal
-            this.x += normalizedDx * fixedDistancePerFrame;
-            this.y += normalizedDy * fixedDistancePerFrame;
-            
-            // Désactiver la transition CSS pour éviter l'accélération
-            this.element.style.transition = 'none';
-            this.element.style.left = `${this.x}px`;
-            this.element.style.top = `${this.y}px`;
-            
-            // Réactiver la transition après la mise à jour
-            setTimeout(() => {
-                if (this.element) {
-                    this.element.style.transition = '';
-                }
-            }, 0);
         }
-
+        
         // Vérifier si le projectile est sorti des limites du jeu
         const gameWidth = this.gameBoard.clientWidth;
         const gameHeight = this.gameBoard.clientHeight;
         
-        if (this.x < -50 || this.x > gameWidth + 50 || this.y < -50 || this.y > gameHeight + 50) {
+        if (this.model.isOutOfBounds(gameWidth, gameHeight)) {
             this.remove();
             return true;
         }
@@ -147,18 +118,18 @@ class Projectile {
         impact.className = 'impact-effect';
 
         // Personnaliser l'effet selon le niveau
-        const size = 20 + (this.level - 1) * 10;
-        const duration = 300 + (this.level - 1) * 100;
+        const size = 20 + (this.model.level - 1) * 10;
+        const duration = 300 + (this.model.level - 1) * 100;
         
         impact.style.width = `${size}px`;
         impact.style.height = `${size}px`;
-        impact.style.left = `${this.target.x}px`;
-        impact.style.top = `${this.target.y}px`;
-        impact.style.backgroundColor = this.color;
+        impact.style.left = `${this.model.target.x}px`;
+        impact.style.top = `${this.model.target.y}px`;
+        impact.style.backgroundColor = this.model.color;
         impact.style.opacity = '0.7';
         
         this.gameBoard.appendChild(impact);
-        this.createExplosionParticles(this.target.x, this.target.y, 8 + this.level * 2);
+        this.createExplosionParticles(this.model.target.x, this.model.target.y, 8 + this.model.level * 2);
         
         // Supprimer l'élément après l'animation
         setTimeout(() => {
@@ -177,11 +148,11 @@ class Projectile {
             particle.className = 'explosion-particle';
             particle.style.left = `${x}px`;
             particle.style.top = `${y}px`;
-            particle.style.color = this.color;
+            particle.style.color = this.model.color;
             
             // Direction aléatoire pour chaque particule
             const angle = Math.random() * Math.PI * 2;
-            const distance = 30 + Math.random() * 30 * this.level;
+            const distance = 30 + Math.random() * 30 * this.model.level;
             const tx = Math.cos(angle) * distance;
             const ty = Math.sin(angle) * distance;
             
@@ -203,36 +174,24 @@ class Projectile {
      * Applique les dégâts de zone autour de la cible principale
      */
     applySplashDamage() {
-        // Récupérer les ennemis du jeu via game.enemies
-        const enemies = this.game?.enemies || window.gameInstance?.enemies;
+        // Récupérer les ennemis du jeu
+        const enemies = window.gameInstance?.enemies;
         
-        if (!enemies || !Array.isArray(enemies)) {
-            return;
-        }
+        // Utiliser le modèle pour calculer les dégâts de splash
+        const splashTargets = this.model.calculateSplashDamage(enemies);
         
-        for (const enemy of enemies) {
-            // Éviter de toucher la cible principale à nouveau et ignorer les ennemis morts
-            if (enemy.id === this.target.id || !enemy.isAlive()) {
-                continue;
-            }
+        // Appliquer les dégâts et créer les effets visuels
+        for (const target of splashTargets) {
+            // Appliquer les dégâts à l'ennemi
+            target.enemy.takeDamage(target.damage, this.model.level);
             
-            // Calculer la distance avec le point d'impact
-            const dx = enemy.x - this.target.x;
-            const dy = enemy.y - this.target.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            
-            // Si l'ennemi est dans le rayon de splash
-            if (distance <= this.splashRadius) {
-                // Calculer les dégâts (diminuent avec la distance)
-                const damagePercent = this.splashDamagePercent * (1 - distance / this.splashRadius);
-                const splashDamage = Math.round(this.damage * damagePercent / 100);
-                
-                // Appliquer les dégâts à l'ennemi
-                enemy.takeDamage(splashDamage, this.level);
-
-                // Créer une ligne d'effet de splash visible
-                this.createSplashLine(this.target.x, this.target.y, enemy.x, enemy.y);
-            }
+            // Créer une ligne d'effet de splash visible
+            this.createSplashLine(
+                target.linePoints.x1, 
+                target.linePoints.y1, 
+                target.linePoints.x2, 
+                target.linePoints.y2
+            );
         }
     }
     
@@ -253,8 +212,8 @@ class Projectile {
         line.style.left = `${x1}px`;
         line.style.top = `${y1}px`;
         line.style.transform = `rotate(${angle}deg)`;
-        line.style.backgroundColor = this.color;
-        line.style.height = `${2 + this.level}px`;
+        line.style.backgroundColor = this.model.color;
+        line.style.height = `${2 + this.model.level}px`;
         line.style.opacity = '0.6';
         
         this.gameBoard.appendChild(line);
@@ -273,8 +232,22 @@ class Projectile {
      */
     remove() {
         this.toRemove = true;
+        this.model.markForRemoval();
         if (this.element && this.element.parentNode) {
             this.element.parentNode.removeChild(this.element);
         }
     }
+    
+    // Getters pour compatibilité avec le code existant
+    get id() { return this.model.id; }
+    get x() { return this.model.x; }
+    get y() { return this.model.y; }
+    get target() { return this.model.target; }
+    get damage() { return this.model.damage; }
+    get color() { return this.model.color; }
+    get speed() { return this.model.speed; }
+    get splashRadius() { return this.model.splashRadius; }
+    get splashDamagePercent() { return this.model.splashDamagePercent; }
+    get level() { return this.model.level; }
+    get hit() { return this.model.hit; }
 }
