@@ -229,7 +229,7 @@ class Projectile {
                 
                 // Appliquer les dégâts à l'ennemi
                 enemy.takeDamage(splashDamage, this.level);
-                
+
                 // Créer une ligne d'effet de splash visible
                 this.createSplashLine(this.target.x, this.target.y, enemy.x, enemy.y);
             }

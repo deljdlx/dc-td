@@ -30,7 +30,7 @@
       "color": "#27ae60",
       "projectileColor": "#2ecc71",
       "projectileSpeed": 200,
-      "splashRadius": 0,
+      "splashRadius": 100,
       "splashDamagePercent": 100,
       "multiShot": 1,
       "multiShotAngle": 0
