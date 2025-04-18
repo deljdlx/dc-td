@@ -1,9 +1,10 @@
 :root {
     /* Variables de couleur spécifiques à l'interface */
-    --color-ui-popup-bg: rgba(0, 0, 0, 0.8);
-    --color-ui-popup-title: #f1c40f;
-    --color-ui-popup-label: #3498db;
+    --color-ui-popup-bg: rgba(15, 15, 15, 0.85);
+    --color-ui-popup-title: #FFD700;
+    --color-ui-popup-label: #99CCFF;
     --color-ui-notification-bg: rgba(0, 0, 0, 0.7);
+    --color-ui-popup-border: rgba(255, 255, 255, 0.2);
 }
 
 /* UI styles */
@@ -32,35 +33,82 @@ button#start-wave:hover {
     background-color: var(--color-start-wave-hover);
 }
 
-/* Styles pour les popups d'information */
+/* Styles pour les popups d'information des tours */
 .tower-info-popup {
     position: absolute;
     background-color: var(--color-ui-popup-bg);
     color: white;
     border-radius: 5px;
-    padding: 10px;
+    padding: 8px 12px;
     z-index: 100;
     pointer-events: none;
-    transform: translate(-50%, -100%);
-    transition: opacity 0.3s;
-    width: 200px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    min-width: 150px;
+    font-size: 14px;
+    backdrop-filter: blur(3px);
+    border: 1px solid var(--color-ui-popup-border);
+    transition: opacity 0.2s ease-in-out;
+    /* Supprimer transform qui interfère avec le positionnement JavaScript */
 }
 
 .tower-info-popup h3 {
+    margin: 0 0 6px 0;
+    text-align: center;
     font-size: 16px;
-    margin-bottom: 5px;
     color: var(--color-ui-popup-title);
+    font-weight: bold;
+    border-bottom: 1px solid var(--color-ui-popup-border);
+    padding-bottom: 4px;
 }
 
-.tower-info-popup .info-row {
+.tower-level-badge {
+    font-size: 12px;
+    padding: 2px 4px;
+    background-color: var(--color-secondary);
+    border-radius: 3px;
+    margin-left: 5px;
+}
+
+/* Style pour la section des stats */
+.tower-info-stats div {
     display: flex;
     justify-content: space-between;
     margin: 3px 0;
-    font-size: 14px;
 }
 
-.tower-info-popup .info-label {
+.tower-info-stats span {
+    font-weight: bold;
     color: var(--color-ui-popup-label);
+    margin-right: 10px;
+}
+
+/* Style pour les informations d'amélioration */
+.tower-upgrade-info {
+    margin-top: 8px;
+    border-top: 1px solid var(--color-ui-popup-border);
+    padding-top: 6px;
+}
+
+.tower-upgrade-info h4 {
+    font-size: 14px;
+    margin: 0 0 5px 0;
+    color: var(--color-ui-popup-title);
+}
+
+.upgrade-cost {
+    margin-top: 5px;
+    font-weight: bold;
+    text-align: center;
+    padding: 3px;
+    background-color: var(--color-secondary);
+    border-radius: 3px;
+}
+
+.tower-max-level {
+    margin-top: 8px;
+    text-align: center;
+    font-style: italic;
+    color: var(--color-ui-popup-border);
 }
 
 /* Style pour les notifications et messages */

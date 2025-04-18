@@ -1,4 +1,9 @@
 /* Tower styling for the tower defense game */
+:root {
+    --color-tower-range: rgba(70, 130, 180, 0.1);
+    --color-tower-range-border: rgba(70, 130, 180, 0.6);
+}
+
 .tower {
     position: absolute;
     border-radius: 50%;
@@ -27,6 +32,21 @@
 
 .tower.selected::after {
     opacity: 1;
+}
+
+.tower-range {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px dashed rgba(0, 0, 0, 0.2);
+    z-index: 5;
+    pointer-events: none;
+}
+
+/* Style spécifique pour la portée affichée au survol */
+.tower-range.hover-range {
+    border: 2px dashed var(--color-tower-range-border);
+    background-color: var(--color-tower-range);
+    animation: pulse-range 1.5s infinite alternate;
 }
 
 .tower-selector {
