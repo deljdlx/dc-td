@@ -1,79 +1,165 @@
 :root {
     /* Variables de couleur spécifiques à l'interface */
-    --color-ui-popup-bg: rgba(15, 15, 15, 0.85);
-    --color-ui-popup-title: #FFD700;
-    --color-ui-popup-label: #99CCFF;
-    --color-ui-notification-bg: rgba(0, 0, 0, 0.7);
-    --color-ui-popup-border: rgba(255, 255, 255, 0.2);
+    --color-ui-popup-bg: rgba(15, 23, 42, 0.85);
+    --color-ui-popup-title: #f59e0b;
+    --color-ui-popup-label: #38bdf8;
+    --color-ui-notification-bg: rgba(15, 23, 42, 0.9);
+    --color-ui-popup-border: rgba(203, 213, 225, 0.2);
+    --color-ui-status-success: #10b981;
+    --color-ui-status-pending: #f59e0b;
+    --color-ui-dashboard-bg: #f8fafc;
 }
 
-/* UI styles */
+/* UI styles pour l'interface de gestion de projet */
 .hud {
     display: flex;
     justify-content: space-between;
-    padding: 10px;
+    padding: 10px 15px;
     background-color: var(--color-hud-bg);
     color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.hud > div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Effet d'indicateurs de statut pour le HUD */
+#money::before {
+    content: '💰';
+    font-size: 16px;
+}
+
+#lives::before {
+    content: '🖥️';
+    font-size: 16px;
+}
+
+#wave::before {
+    content: '📅';
+    font-size: 16px;
+}
+
+/* Styles pour les développeurs sélectionnés */
 .selected {
     border: 2px solid var(--color-tower-selected);
+    box-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
 }
 
+/* Bouton "Démarrer journée" (ex. Démarrer vague) */
 button#start-wave {
-    padding: 5px 10px;
+    padding: 8px 12px;
     background-color: var(--color-start-wave-button);
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+}
+
+button#start-wave::before {
+    content: '🚀';
+    font-size: 16px;
 }
 
 button#start-wave:hover {
     background-color: var(--color-start-wave-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Styles pour les popups d'information des tours */
+button#start-wave:active {
+    transform: translateY(0);
+}
+
+/* Styles pour les popups d'information des développeurs */
 .tower-info-popup {
     position: absolute;
     background-color: var(--color-ui-popup-bg);
     color: white;
-    border-radius: 5px;
-    padding: 8px 12px;
+    border-radius: 8px;
+    padding: 12px 15px;
     z-index: 100;
     pointer-events: none;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    min-width: 150px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    min-width: 220px;
     font-size: 14px;
-    backdrop-filter: blur(3px);
+    backdrop-filter: blur(5px);
     border: 1px solid var(--color-ui-popup-border);
     transition: opacity 0.2s ease-in-out;
-    /* Supprimer transform qui interfère avec le positionnement JavaScript */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .tower-info-popup h3 {
-    margin: 0 0 6px 0;
+    margin: 0 0 8px 0;
     text-align: center;
     font-size: 16px;
     color: var(--color-ui-popup-title);
     font-weight: bold;
     border-bottom: 1px solid var(--color-ui-popup-border);
-    padding-bottom: 4px;
+    padding-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* Ajouter l'icône du type de développeur au titre */
+.tower-info-popup h3::before {
+    content: '💻';
+    font-size: 18px;
+}
+
+.tower-info-popup h3[data-tower-type="frontend"]::before {
+    content: '🎨';
+}
+
+.tower-info-popup h3[data-tower-type="backend"]::before {
+    content: '⚙️';
+}
+
+.tower-info-popup h3[data-tower-type="fullstack"]::before {
+    content: '🔧';
+}
+
+.tower-info-popup h3[data-tower-type="devops"]::before {
+    content: '🚀';
 }
 
 .tower-level-badge {
     font-size: 12px;
-    padding: 2px 4px;
+    padding: 3px 6px;
     background-color: var(--color-secondary);
-    border-radius: 3px;
+    border-radius: 20px;
     margin-left: 5px;
+    white-space: nowrap;
 }
 
-/* Style pour la section des stats */
+/* Style pour la section des compétences */
+.tower-info-stats {
+    margin-bottom: 10px;
+}
+
 .tower-info-stats div {
     display: flex;
     justify-content: space-between;
-    margin: 3px 0;
+    margin: 5px 0;
+    font-size: 13px;
+}
+
+.tower-info-stats div:first-child {
+    margin-top: 0;
 }
 
 .tower-info-stats span {
@@ -82,33 +168,61 @@ button#start-wave:hover {
     margin-right: 10px;
 }
 
-/* Style pour les informations d'amélioration */
+/* Style pour les informations d'amélioration (niveau supérieur) */
 .tower-upgrade-info {
-    margin-top: 8px;
+    margin-top: 10px;
     border-top: 1px solid var(--color-ui-popup-border);
-    padding-top: 6px;
+    padding-top: 8px;
 }
 
 .tower-upgrade-info h4 {
     font-size: 14px;
     margin: 0 0 5px 0;
     color: var(--color-ui-popup-title);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.tower-upgrade-info h4::before {
+    content: '⬆️';
+    font-size: 14px;
 }
 
 .upgrade-cost {
-    margin-top: 5px;
+    margin-top: 8px;
     font-weight: bold;
     text-align: center;
-    padding: 3px;
-    background-color: var(--color-secondary);
-    border-radius: 3px;
+    padding: 5px;
+    background-color: rgba(59, 130, 246, 0.3);
+    border-radius: 5px;
+    border: 1px solid rgba(59, 130, 246, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.upgrade-cost::before {
+    content: '💰';
+    font-size: 14px;
 }
 
 .tower-max-level {
-    margin-top: 8px;
+    margin-top: 10px;
     text-align: center;
     font-style: italic;
-    color: var(--color-ui-popup-border);
+    color: rgba(203, 213, 225, 0.7);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.tower-max-level::before {
+    content: '⭐';
+    font-size: 14px;
 }
 
 /* Style pour les notifications et messages */
@@ -119,10 +233,114 @@ button#start-wave:hover {
     transform: translateX(-50%);
     background-color: var(--color-ui-notification-bg);
     color: white;
-    padding: 8px 15px;
+    padding: 10px 15px;
     border-radius: 20px;
     font-size: 14px;
     z-index: 500;
     opacity: 0;
     animation: fade-in-out 2s ease-in-out forwards;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Types spécifiques de notifications */
+.game-notification.success::before {
+    content: '✅';
+}
+
+.game-notification.warning::before {
+    content: '⚠️';
+}
+
+.game-notification.error::before {
+    content: '❌';
+}
+
+.game-notification.info::before {
+    content: 'ℹ️';
+}
+
+/* Section de sélection des développeurs */
+.tower-selection {
+    padding: 10px 15px;
+    background-color: var(--color-ui-dashboard-bg);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.tower-selection h3 {
+    margin: 0 0 10px 0;
+    font-size: 15px;
+    color: var(--color-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tower-selection h3::before {
+    content: '👨‍💻';
+    font-size: 16px;
+}
+
+#tower-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.tower-button {
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 120px;
+    font-size: 13px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.tower-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-color: rgba(59, 130, 246, 0.5);
+}
+
+.tower-button.selected {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.8);
+}
+
+.tower-button div:first-child {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.tower-button[data-tower-id="frontend"] div:first-child::before {
+    content: '🎨';
+    font-size: 16px;
+}
+
+.tower-button[data-tower-id="backend"] div:first-child::before {
+    content: '⚙️';
+    font-size: 16px;
+}
+
+.tower-button[data-tower-id="fullstack"] div:first-child::before {
+    content: '🔧';
+    font-size: 16px;
+}
+
+.tower-button[data-tower-id="devops"] div:first-child::before {
+    content: '🚀';
+    font-size: 16px;
 }

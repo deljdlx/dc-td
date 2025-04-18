@@ -1,12 +1,18 @@
-/* Tower styling for the tower defense game */
+/* Styling pour les développeurs (towers) dans le jeu d'agence informatique */
 :root {
-    --color-tower-range: rgba(70, 130, 180, 0.1);
-    --color-tower-range-border: rgba(70, 130, 180, 0.6);
+    --color-tower-range: rgba(59, 130, 246, 0.08);
+    --color-tower-range-border: rgba(59, 130, 246, 0.4);
+    
+    /* Types de développeurs spécifiques */
+    --color-dev-frontend: #3b82f6;     /* Bleu pour frontend */
+    --color-dev-backend: #ef4444;      /* Rouge pour backend */
+    --color-dev-fullstack: #10b981;    /* Vert pour fullstack */
+    --color-dev-devops: #8b5cf6;       /* Violet pour DevOps */
 }
 
 .tower {
     position: absolute;
-    border-radius: 50%;
+    border-radius: 10px;
     background-color: var(--color-primary);
     z-index: 2;
     cursor: pointer;
@@ -16,6 +22,11 @@
     font-weight: bold;
     color: white;
     user-select: none;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s, box-shadow 0.3s;
+    /* Effet d'écran d'ordinateur */
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+    border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .tower::after {
@@ -23,11 +34,16 @@
     position: absolute;
     width: 200%;
     height: 200%;
-    border: 2px dashed rgba(0, 0, 0, 0.2);
+    border: 2px dashed rgba(0, 0, 0, 0.1);
     border-radius: 50%;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.2s;
+}
+
+.tower.selected {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transform: translateY(-3px);
 }
 
 .tower.selected::after {
@@ -37,53 +53,107 @@
 .tower-range {
     position: absolute;
     border-radius: 50%;
-    border: 2px dashed rgba(0, 0, 0, 0.2);
+    border: 2px dashed rgba(0, 0, 0, 0.1);
     z-index: 5;
     pointer-events: none;
 }
 
-/* Style spécifique pour la portée affichée au survol */
+/* Style pour la zone d'influence (expertise du développeur) */
 .tower-range.hover-range {
     border: 2px dashed var(--color-tower-range-border);
     background-color: var(--color-tower-range);
     animation: pulse-range 1.5s infinite alternate;
 }
 
+/* Icônes représentant les développeurs */
+.tower::before {
+    content: '💻';
+    font-size: 16px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.tower[data-tower-type="frontend"]::before {
+    content: '🎨';  /* Designer/Frontend */
+}
+
+.tower[data-tower-type="backend"]::before {
+    content: '⚙️';  /* Backend */
+}
+
+.tower[data-tower-type="fullstack"]::before {
+    content: '🔧';  /* Fullstack */
+}
+
+.tower[data-tower-type="devops"]::before {
+    content: '🚀';  /* DevOps */
+}
+
+/* Niveaux des développeurs (junior, mid, senior) */
+.tower-level {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    background-color: var(--color-secondary);
+    color: white;
+    font-size: 10px;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Fenêtre de sélection des développeurs */
 .tower-selector {
     position: absolute;
     display: flex;
-    gap: 5px;
-    padding: 5px;
-    background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 5px;
+    gap: 8px;
+    padding: 8px;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
     z-index: 3;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
 .tower-option {
     width: 40px;
     height: 40px;
-    border-radius: 50%;
+    border-radius: 8px;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-size: 18px;
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .tower-option:hover {
     transform: scale(1.1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
 .tower-option.basic {
-    background-color: var(--color-primary);
+    background-color: var(--color-dev-frontend);
 }
 
 .tower-option.cannon {
-    background-color: var(--color-accent);
+    background-color: var(--color-dev-backend);
 }
 
 .tower-option.sniper {
-    background-color: #9b59b6;
+    background-color: var(--color-dev-fullstack);
+}
+
+.tower-option.magic {
+    background-color: var(--color-dev-devops);
 }
 
 .tower-option.cost::before {
@@ -92,4 +162,8 @@
     bottom: -15px;
     font-size: 10px;
     color: #333;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 1px 4px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }

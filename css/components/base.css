@@ -1,40 +1,102 @@
-/* Base styling for the tower defense game */
-* {
+/* Styles de base pour le jeu d'agence informatique */
+
+*, *::before, *::after {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--color-background);
+    padding: 20px;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
     height: 100vh;
+    overflow: hidden;
 }
 
 .game-container {
+    background-color: var(--color-container);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    background-color: var(--color-container);
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 1000px;
+    height: 90vh;
+    position: relative;
+    border: 1px solid rgba(203, 213, 225, 0.8);
 }
 
-.hud {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px;
-    background-color: var(--color-hud-bg);
-    color: white;
-}
-
-.game-board {
-    background-color: var(--color-game-board);
-    width: 800px;
-    height: 500px;
+#gameBoard {
     position: relative;
     overflow: hidden;
+    flex-grow: 1;
+    cursor: default;
+    background-color: var(--color-game-board);
+}
+
+/* Style pour le placement des développeurs (tours) */
+.tower-placing-animation {
+    position: absolute;
+    border-radius: 8px;
+    pointer-events: none;
+    animation: placeTower 0.5s ease-out forwards;
+    background-color: transparent;
+    border: 2px solid var(--color-tower-placement);
+    z-index: 10;
+}
+
+.placeholder-tower {
+    position: absolute;
+    border-radius: 8px;
+    z-index: 1;
+    opacity: 0.7;
+    pointer-events: none;
+    border: 2px dashed rgba(59, 130, 246, 0.5);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+/* Styles pour les cellules valides/invalides */
+.valid-cell {
+    background-color: var(--color-valid-placement);
+    border: 2px solid rgba(34, 197, 94, 0.5);
+}
+
+.invalid-cell {
+    background-color: var(--color-invalid-placement);
+    border: 2px solid rgba(239, 68, 68, 0.5);
+}
+
+/* Style quand on est en train de faire un drag & drop */
+body.dragging-tower {
+    cursor: grabbing;
+}
+
+/* Styling pour les sections d'en-tête et pied de page */
+.game-title {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: var(--color-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.game-title::before {
+    content: '💼';
+    font-size: 24px;
+}
+
+.game-footer {
+    text-align: center;
+    font-size: 12px;
+    margin-top: 10px;
+    color: var(--color-secondary);
+    opacity: 0.7;
 }

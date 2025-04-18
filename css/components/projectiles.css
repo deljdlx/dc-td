@@ -1,25 +1,60 @@
+/* Styling pour les solutions (projectiles) dans le jeu d'agence informatique */
 :root {
-    /* Variables de couleur spécifiques aux projectiles */
-    --color-projectile-shadow: rgba(255, 255, 255, 0.5);
-    --color-splash-line-opacity: 0.8;
-    --color-splash-glow: rgba(255, 255, 255, 0.3);
+    /* Variables de couleur spécifiques aux solutions */
+    --color-solution-frontend: rgba(59, 130, 246, 0.9);  /* Bleu frontend */
+    --color-solution-backend: rgba(239, 68, 68, 0.9);    /* Rouge backend */
+    --color-solution-fullstack: rgba(16, 185, 129, 0.9); /* Vert fullstack */
+    --color-solution-devops: rgba(139, 92, 246, 0.9);    /* Violet devops */
+    --color-solution-shadow: rgba(255, 255, 255, 0.5);
+    --color-solution-glow: rgba(203, 213, 225, 0.6);
 }
 
-/* Projectile styles */
+/* Style de base pour toutes les solutions (code) */
 .projectile {
     position: absolute;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
     z-index: 9;
     transform: translate(-50%, -50%);
     transition: left 0.2s cubic-bezier(0.4, 0, 0.2, 1), top 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 0 5px var(--color-projectile-shadow);
+    box-shadow: 0 0 5px var(--color-solution-shadow);
     will-change: transform, left, top;
     filter: drop-shadow(0 0 2px currentColor);
+    
+    /* Effet de code avec texture */
+    background-image: linear-gradient(to bottom, 
+        rgba(255, 255, 255, 0.4) 0%, 
+        rgba(255, 255, 255, 0.1) 100%),
+        repeating-linear-gradient(to bottom, 
+            rgba(255, 255, 255, 0.2) 0, 
+            rgba(255, 255, 255, 0.2) 1px, 
+            transparent 1px, 
+            transparent 2px);
 }
 
-/* Style pour la traînée des projectiles de niveau supérieur */
+/* Codes spécialisés selon le type de développeur */
+.projectile[id*="frontend"] {
+    background-color: var(--color-solution-frontend);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.projectile[id*="backend"] {
+    background-color: var(--color-solution-backend);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.projectile[id*="fullstack"] {
+    background-color: var(--color-solution-fullstack);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.projectile[id*="devops"] {
+    background-color: var(--color-solution-devops);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* Style pour la traînée des solutions de niveau supérieur (senior dev) */
 .projectile-trail {
     position: relative;
 }
@@ -29,14 +64,15 @@
     position: absolute;
     width: 100%;
     height: 100%;
-    border-radius: 50%;
+    border-radius: 2px;
     background-color: inherit;
     z-index: -1;
     opacity: 0.7;
     animation: fade-trail 0.3s linear;
+    filter: blur(1px);
 }
 
-/* Effet d'explosion pour les impacts de projectiles */
+/* Effet d'explosion pour les impacts de solutions (résolution de ticket) */
 .impact-effect {
     position: absolute;
     border-radius: 50%;
@@ -44,22 +80,35 @@
     transform: translate(-50%, -50%) scale(0);
     pointer-events: none;
     animation: explosion 0.5s ease-out forwards;
+    
+    /* Effet de code qui se disperse */
+    background-image: radial-gradient(circle, 
+        rgba(255, 255, 255, 0.8) 0%, 
+        currentColor 30%, 
+        transparent 70%);
+    box-shadow: 0 0 15px currentColor;
 }
 
-/* Effet de particules d'explosion */
+/* Effet de particules de code */
 .explosion-particle {
     position: absolute;
     width: 4px;
     height: 4px;
-    border-radius: 50%;
+    border-radius: 1px;
     background-color: currentColor;
     z-index: 14;
     pointer-events: none;
     opacity: 0;
     animation: particle-fly 0.6s ease-out forwards;
+    
+    /* Effet de bout de code */
+    background-image: linear-gradient(to bottom, 
+        rgba(255, 255, 255, 0.4) 0%, 
+        rgba(255, 255, 255, 0.1) 100%);
+    box-shadow: 0 0 3px rgba(255, 255, 255, 0.5);
 }
 
-/* Style pour les lignes d'effet splash */
+/* Style pour les lignes d'effet de collaboration */
 .splash-line {
     position: absolute;
     height: 2px;
@@ -68,9 +117,15 @@
     z-index: 13;
     pointer-events: none;
     animation: splash-pulse 0.3s ease-out;
-    box-shadow: 0 0 4px var(--color-splash-glow);
+    box-shadow: 0 0 4px var(--color-solution-glow);
     filter: blur(0.5px);
-    /* Assurer que la ligne est visible même avec une faible opacité */
     width: 0;
     transition: width 0.2s ease-out;
+    
+    /* Effet de connexion/collaboration */
+    background-image: linear-gradient(90deg, 
+        currentColor 0%, 
+        rgba(255, 255, 255, 0.7) 50%, 
+        currentColor 100%);
+    border-radius: 2px;
 }

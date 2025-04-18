@@ -1,35 +1,65 @@
-/* Map and cell styling for the tower defense game */
+/* Map and cell styling for the IT agency game board */
 .map-container {
     position: relative;
     width: 100%;
     height: 100%;
+    background-image: linear-gradient(45deg, var(--color-game-board) 25%, transparent 25%, transparent 75%, var(--color-game-board) 75%),
+                      linear-gradient(45deg, var(--color-game-board) 25%, rgba(203, 213, 225, 0.3) 25%, rgba(203, 213, 225, 0.3) 75%, var(--color-game-board) 75%);
+    background-size: 60px 60px;
+    background-position: 0 0, 30px 30px;
 }
 
 .cell {
     position: absolute;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(148, 163, 184, 0.2);
     transition: background-color 0.2s;
+    box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.05);
 }
 
 .path {
     background-color: var(--color-path);
+    background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 10px 10px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
 .buildable {
     cursor: pointer;
     background-color: var(--color-buildable);
+    /* Effet de poste de travail */
+    background-image: radial-gradient(circle at center, rgba(255, 255, 255, 0.7) 0%, rgba(203, 213, 225, 0) 70%);
 }
 
 .buildable:hover {
     background-color: var(--color-buildable-hover);
+    box-shadow: inset 0 0 15px rgba(56, 189, 248, 0.3);
+    transform: scale(1.02);
+    transition: all 0.2s ease;
 }
 
 .start-point {
     background-color: var(--color-start-point);
-    border-radius: 50%;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(37, 99, 235, 0.4);
+    transform: scale(1);
+    animation: pulse-start 2s infinite alternate;
+}
+
+@keyframes pulse-start {
+    0% { box-shadow: 0 0 10px rgba(37, 99, 235, 0.4); }
+    100% { box-shadow: 0 0 20px rgba(37, 99, 235, 0.6); }
 }
 
 .end-point {
     background-color: var(--color-end-point);
-    border-radius: 50%;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(220, 38, 38, 0.4);
+    transform: scale(1);
+    animation: pulse-end 2s infinite alternate;
+}
+
+@keyframes pulse-end {
+    0% { box-shadow: 0 0 10px rgba(220, 38, 38, 0.4); }
+    100% { box-shadow: 0 0 20px rgba(220, 38, 38, 0.6); }
 }

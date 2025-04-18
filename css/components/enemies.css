@@ -1,47 +1,108 @@
+/* Styling pour les tickets (ennemis) dans le jeu d'agence informatique */
 :root {
-    /* Variables de couleur spécifiques aux ennemis */
-    --color-enemy-health-bg: red;
-    --color-enemy-health-fill: green;
+    /* Variables de couleur spécifiques aux tickets */
+    --color-ticket-normal: #f1f5f9;     /* Gris très clair pour tickets normaux */
+    --color-ticket-urgent: #fecaca;     /* Rouge léger pour tickets urgents */
+    --color-ticket-critical: #fee2e2;   /* Rouge plus vif pour tickets critiques */
+    --color-ticket-border: #cbd5e1;     /* Bordure des tickets */
+    --color-ticket-text: #1e293b;       /* Texte des tickets */
+    --color-ticket-health-bg: #fca5a5;  /* Barre de progression (fond) */
+    --color-ticket-health-fill: #22c55e; /* Barre de progression (remplissage) */
 }
 
-/* Enemy styles */
+/* Style de base pour tous les tickets */
 .enemy {
     position: absolute;
-    border-radius: 50%;
+    border-radius: 6px;
     z-index: 8;
     transition: left 0.1s linear, top 0.1s linear;
+    background-color: var(--color-ticket-normal);
+    border: 1px solid var(--color-ticket-border);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* Effet de ticket ou post-it */
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 100%);
 }
 
+/* Indicateurs de type de ticket (basés sur l'ID ou type) */
+.enemy::before {
+    content: '📄';  /* Icône par défaut */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 14px;
+    color: var(--color-ticket-text);
+}
+
+/* Types de tickets spécifiques */
+.enemy[id*="goblin"]::before {
+    content: '📝';  /* Ticket simple */
+}
+
+.enemy[id*="orc"]::before {
+    content: '⚠️';  /* Ticket urgent */
+    background-color: var(--color-ticket-urgent);
+}
+
+.enemy[id*="troll"]::before {
+    content: '🚨';  /* Ticket critique/bug */
+    background-color: var(--color-ticket-critical);
+}
+
+/* Barre de progression du ticket (délai) */
 .health-bar {
     position: absolute;
     height: 4px;
-    background-color: var(--color-enemy-health-bg);
-    top: -8px;
+    background-color: var(--color-ticket-health-bg);
+    top: -6px;
     left: 50%;
     transform: translateX(-50%);
+    border-radius: 2px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .health-bar-fill {
     height: 100%;
-    background-color: var(--color-enemy-health-fill);
+    background-color: var(--color-ticket-health-fill);
+    transition: width 0.3s ease-out;
+    border-radius: 2px;
+    background-image: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0.1) 25%, 
+        rgba(255, 255, 255, 0.2) 50%, 
+        rgba(255, 255, 255, 0.1) 75%);
+    background-size: 20px 100%;
+    animation: health-bar-progress 1s linear infinite;
 }
 
-/* Style pour les effets visuels de dégâts */
+@keyframes health-bar-progress {
+    0% { background-position: 0 0; }
+    100% { background-position: 20px 0; }
+}
+
+/* Style pour les effets visuels de dégâts (résolution en cours) */
 .enemy-hit {
-    animation: hit-flash 0.2s ease-out;
+    animation: ticket-being-solved 0.3s ease-out;
 }
 
-/* Style pour les ennemis ralentis */
+@keyframes ticket-being-solved {
+    0% { filter: brightness(1); transform: scale(1); }
+    50% { filter: brightness(1.3); transform: scale(1.05); }
+    100% { filter: brightness(1); transform: scale(1); }
+}
+
+/* Style pour les tickets ralentis (en attente) */
 .enemy-slowed {
-    filter: brightness(0.7) saturate(1.5);
+    filter: brightness(0.9) opacity(0.8);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
 }
 
-/* Style pour les ennemis avec effets spéciaux */
+/* Style pour les tickets avec effets spéciaux (priorités, blocants) */
 .enemy-effect {
     position: absolute;
     width: 100%;
     height: 100%;
-    border-radius: 50%;
+    border-radius: 6px;
     pointer-events: none;
     z-index: -1;
 }

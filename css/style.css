@@ -1,41 +1,61 @@
-/* Variables CSS globales */
+/* Variables CSS globales pour un thème d'agence informatique */
 :root {
-    /* Couleurs de base */
-    --color-primary: #3498db;
-    --color-secondary: #2c3e50;
-    --color-accent: #e74c3c;
-    --color-success: #2ecc71;
-    --color-warning: #f1c40f;
-    --color-danger: #e74c3c;
+    /* Palette de couleurs professionnelles IT */
+    --color-primary: #2563eb;          /* Bleu professionnel pour les devs frontend */
+    --color-secondary: #1e293b;        /* Bleu sombre/slate pour l'UI */
+    --color-accent: #ef4444;           /* Rouge pour les devs backend/urgences */
+    --color-success: #10b981;          /* Vert pour les devs fullstack */
+    --color-warning: #f59e0b;          /* Orange pour les tickets prioritaires */
+    --color-danger: #dc2626;           /* Rouge vif pour les bugs critiques */
     
-    /* Couleurs pour le terrain */
-    --color-background: #f0f0f0;
-    --color-container: #fff;
-    --color-game-board: #ecf0f1;
+    /* Couleurs pour le bureau (terrain) */
+    --color-background: #f1f5f9;       /* Gris clair pour l'arrière-plan (style bureau moderne) */
+    --color-container: #ffffff;        /* Blanc pour le conteneur (écran) */
+    --color-game-board: #e2e8f0;       /* Gris très clair pour le plateau (bureau) */
     
-    /* Couleurs pour la carte */
-    --color-path: #795548;
-    --color-buildable: #8BC34A;
-    --color-buildable-hover: rgba(0, 255, 0, 0.3);
-    --color-start-point: #3498db;
-    --color-end-point: #e74c3c;
+    /* Couleurs pour les chemins et emplacements */
+    --color-path: #94a3b8;             /* Gris moyen pour le chemin (workflow des tickets) */
+    --color-buildable: #cbd5e1;        /* Gris clair pour les places constructibles (postes de travail) */
+    --color-buildable-hover: rgba(203, 213, 225, 0.7); /* Version plus claire au survol */
+    --color-start-point: #60a5fa;      /* Bleu clair pour point de départ (entrée des tickets) */
+    --color-end-point: #f87171;        /* Rouge clair pour point d'arrivée (deadline) */
     
     /* Couleurs pour l'interface */
-    --color-hud-bg: #2c3e50;
-    --color-tower-selection: #34495e;
-    --color-tower-button: #3498db;
-    --color-tower-button-hover: #2980b9;
-    --color-start-wave-button: #e74c3c;
-    --color-start-wave-hover: #c0392b;
+    --color-hud-bg: #1e293b;           /* Slate foncé pour l'en-tête (barre de menu) */
+    --color-tower-selection: #334155;  /* Slate moyen pour la sélection de dev */
+    --color-tower-button: #3b82f6;     /* Bleu pour les boutons de dev */
+    --color-tower-button-hover: #2563eb; /* Bleu plus foncé au survol */
+    --color-start-wave-button: #ef4444; /* Rouge pour le bouton de démarrage de vague (nouvelle journée) */
+    --color-start-wave-hover: #dc2626; /* Rouge plus foncé au survol */
     
     /* Couleurs pour les éléments de jeu */
-    --color-tower-selected: #f1c40f;
-    --color-valid-placement: rgba(0, 255, 0, 0.3);
-    --color-invalid-placement: rgba(255, 0, 0, 0.3);
+    --color-tower-selected: #facc15;   /* Jaune pour le dev sélectionné */
+    --color-valid-placement: rgba(34, 197, 94, 0.3); /* Vert transparent pour placement valide */
+    --color-invalid-placement: rgba(239, 68, 68, 0.3); /* Rouge transparent pour placement invalide */
     
     /* Couleurs pour les animations */
-    --color-tower-placement: #2ecc71;
-    --color-tower-placement-mid: #27ae60;
+    --color-tower-placement: #10b981; /* Vert pour l'animation de placement */
+    --color-tower-placement-mid: #059669; /* Vert plus foncé pour l'animation */
+    
+    /* Couleurs spécifiques à la tour (dev) portée */
+    --color-tower-range: rgba(56, 189, 248, 0.1); /* Bleu ciel très transparent pour la zone d'influence */
+    --color-tower-range-border: rgba(56, 189, 248, 0.6); /* Bleu ciel pour la bordure */
+    
+    /* Couleurs spécifiques aux tickets (ennemis) */
+    --color-enemy-health-bg: #f87171; /* Rouge clair pour fond de barre de progression */
+    --color-enemy-health-fill: #22c55e; /* Vert pour la progression */
+    
+    /* Couleurs spécifiques aux solutions (projectiles) */
+    --color-projectile-shadow: rgba(255, 255, 255, 0.5); /* Ombre blanche */
+    --color-splash-line-opacity: 0.8; /* Opacité des lignes de collaboration */
+    --color-splash-glow: rgba(255, 255, 255, 0.3); /* Lueur blanche */
+    
+    /* Couleurs pour les popups d'info */
+    --color-ui-popup-bg: rgba(15, 23, 42, 0.85); /* Fond slate très foncé semi-transparent */
+    --color-ui-popup-title: #f59e0b; /* Titre en orange */
+    --color-ui-popup-label: #38bdf8; /* Labels en bleu ciel */
+    --color-ui-notification-bg: rgba(15, 23, 42, 0.8); /* Fond pour notifications */
+    --color-ui-popup-border: rgba(203, 213, 225, 0.2); /* Bordure grise transparente */
 }
 
 /* 
@@ -43,9 +63,9 @@
    Les styles spécifiques sont maintenant dans les fichiers de composants:
    - base.css: Styles de base (body, game-container)
    - map.css: Styles pour la carte et les cellules
-   - towers.css: Styles pour les tours
-   - enemies.css: Styles pour les ennemis
-   - projectiles.css: Styles pour les projectiles
+   - towers.css: Styles pour les développeurs (tours)
+   - enemies.css: Styles pour les tickets (ennemis)
+   - projectiles.css: Styles pour les solutions (projectiles)
    - ui.css: Styles pour l'interface utilisateur
    - animations.css: Styles pour les animations
 */
