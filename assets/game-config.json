@@ -24,14 +24,16 @@
       "id": "archer",
       "name": "Tour d'archer",
       "damage": 10,
-      "range": 150,
+      "range": 350,
       "fireRate": 1,
       "cost": 50,
       "color": "#27ae60",
       "projectileColor": "#2ecc71",
       "projectileSpeed": 150,
       "splashRadius": 0,
-      "splashDamagePercent": 100
+      "splashDamagePercent": 100,
+      "multiShot": 1,
+      "multiShotAngle": 0
     },
     {
       "id": "cannon",
@@ -42,9 +44,11 @@
       "cost": 100,
       "color": "#c0392b",
       "projectileColor": "#e74c3c",
-      "projectileSpeed": 15,
+      "projectileSpeed": 100,
       "splashRadius": 50,
-      "splashDamagePercent": 70
+      "splashDamagePercent": 70,
+      "multiShot": 1,
+      "multiShotAngle": 0
     },
     {
       "id": "magic",
@@ -55,9 +59,26 @@
       "cost": 150,
       "color": "#8e44ad",
       "projectileColor": "#9b59b6",
-      "projectileSpeed": 18,
+      "projectileSpeed": 125,
       "splashRadius": 30,
-      "splashDamagePercent": 50
+      "splashDamagePercent": 50,
+      "multiShot": 3,
+      "multiShotAngle": 15
+    },
+    {
+      "id": "multi",
+      "name": "Tour multiple",
+      "damage": 8,
+      "range": 180,
+      "fireRate": 1.2,
+      "cost": 175,
+      "color": "#3498db",
+      "projectileColor": "#2980b9",
+      "projectileSpeed": 140,
+      "splashRadius": 0,
+      "splashDamagePercent": 100,
+      "multiShot": 5,
+      "multiShotAngle": 10
     }
   ],
   "enemies": [

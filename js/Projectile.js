@@ -65,10 +65,28 @@ class Projectile {
             return false;
         }
         
-        // Calculer la direction vers la cible
-        const dx = this.target.x - this.x;
-        const dy = this.target.y - this.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+        let dx, dy, distance;
+        
+        // Si c'est un projectile directionnel, se déplacer en ligne droite
+        if (this.target.isDirectional) {
+            // Utiliser l'angle directionnel pour calculer le mouvement
+            dx = Math.cos(this.target.directionAngle);
+            dy = Math.sin(this.target.directionAngle);
+            
+            // Calculer la distance avec la cible pour vérifier la collision
+            const targetDx = this.target.x - this.x;
+            const targetDy = this.target.y - this.y;
+            distance = Math.sqrt(targetDx * targetDx + targetDy * targetDy);
+        } else {
+            // Comportement normal: suivre la cible
+            dx = this.target.x - this.x;
+            dy = this.target.y - this.y;
+            distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Normaliser la direction
+            dx = dx / distance;
+            dy = dy / distance;
+        }
         
         // Si le projectile est suffisamment proche de la cible (collision)
         // Utiliser le rayon de l'ennemi comme référence principale
@@ -98,9 +116,8 @@ class Projectile {
         }
         
         // Calculer le déplacement à vitesse constante
-        // Normaliser le vecteur de direction et multiplier par la vitesse et le temps écoulé
-        const moveX = (dx / distance) * this.speed * deltaTime;
-        const moveY = (dy / distance) * this.speed * deltaTime;
+        const moveX = dx * this.speed * deltaTime;
+        const moveY = dy * this.speed * deltaTime;
         
         this.x += moveX;
         this.y += moveY;
@@ -108,6 +125,15 @@ class Projectile {
         // Mettre à jour la position visuelle
         this.element.style.left = `${this.x - this.size / 2}px`;
         this.element.style.top = `${this.y - this.size / 2}px`;
+        
+        // Vérifier si le projectile est sorti des limites du jeu
+        const gameWidth = this.gameBoard.clientWidth;
+        const gameHeight = this.gameBoard.clientHeight;
+        
+        if (this.x < -50 || this.x > gameWidth + 50 || this.y < -50 || this.y > gameHeight + 50) {
+            this.remove();
+            return true;
+        }
         
         return false;
     }

@@ -20,6 +20,8 @@ class Tower {
         this.projectileSpeed = config.projectileSpeed;
         this.splashRadius = config.splashRadius || 0; // Rayon des dégâts de zone
         this.splashDamagePercent = config.splashDamagePercent || 100; // Pourcentage des dégâts en zone
+        this.multiShot = config.multiShot || 1; // Nombre de projectiles tirés simultanément
+        this.multiShotAngle = config.multiShotAngle || 0; // Angle entre les projectiles multiples
         
         this.x = x;
         this.y = y;
@@ -79,11 +81,8 @@ class Tower {
         this.rangeElement.style.top = `${this.y - this.range}px`;
         this.rangeElement.style.display = 'none';
         
-        // Créer le popup d'information (initialement caché)
-        this.infoPopup = document.createElement('div');
-        this.infoPopup.className = 'tower-info-popup';
-        this.infoPopup.innerHTML = this.getInfoHTML();
-        this.infoPopup.style.display = 'none';
+        // Créer le popup d'information avec la nouvelle classe
+        this.infoPopup = new TowerInfoPopup(this, this.gameBoard);
         
         // Ajouter des écouteurs d'événements pour afficher la portée et le popup au survol
         this.element.addEventListener('mouseenter', () => {
@@ -92,8 +91,7 @@ class Tower {
                 this.rangeElement.classList.add('hover-range');
             }
             // Afficher le popup d'information
-            this.infoPopup.style.display = 'block';
-            this.updateInfoPopupPosition();
+            this.infoPopup.show();
         });
         
         this.element.addEventListener('mouseleave', () => {
@@ -102,91 +100,12 @@ class Tower {
                 this.rangeElement.classList.remove('hover-range');
             }
             // Cacher le popup d'information
-            this.infoPopup.style.display = 'none';
+            this.infoPopup.hide();
         });
         
         // Ajouter les éléments au jeu
         this.gameBoard.appendChild(this.element);
         this.gameBoard.appendChild(this.rangeElement);
-        this.gameBoard.appendChild(this.infoPopup);
-    }
-    
-    /**
-     * Génère le contenu HTML du popup d'information
-     * @returns {string} Le HTML formaté pour le popup
-     */
-    getInfoHTML() {
-        // Calculer les dégâts par seconde (DPS)
-        const dps = (this.damage * this.fireRate).toFixed(1);
-        
-        // Construire les informations sur l'amélioration possible
-        let upgradeInfo = '';
-        if (this.level < this.maxLevel) {
-            const nextDamage = Math.round(this.damage * this.upgradeMultiplier);
-            const nextRange = Math.round(this.range * this.upgradeMultiplier);
-            const nextFireRate = +(this.fireRate * this.upgradeMultiplier).toFixed(1);
-            const nextDps = (nextDamage * nextFireRate).toFixed(1);
-            
-            upgradeInfo = `
-                <div class="tower-upgrade-info">
-                    <h4>Niveau suivant :</h4>
-                    <div><span>Dégâts:</span> ${nextDamage} (+${Math.round((nextDamage-this.damage))})</div>
-                    <div><span>Portée:</span> ${nextRange} (+${Math.round((nextRange-this.range))})</div>
-                    <div><span>Cadence:</span> ${nextFireRate}/s (+${(nextFireRate-this.fireRate).toFixed(1)})</div>
-                    <div><span>DPS:</span> ${nextDps} (+${(nextDps-dps).toFixed(1)})</div>
-                    <div class="upgrade-cost">Coût: ${this.upgradeCost}</div>
-                </div>
-            `;
-        } else {
-            upgradeInfo = '<div class="tower-max-level">Niveau maximum atteint</div>';
-        }
-        
-        // Formatage du contenu du popup avec les détails de la tour
-        return `
-            <h3>${this.name} <span class="tower-level-badge">Niv. ${this.level}</span></h3>
-            <div class="tower-info-stats">
-                <div><span>Dégâts:</span> ${this.damage}</div>
-                <div><span>Portée:</span> ${this.range}</div>
-                <div><span>Cadence:</span> ${this.fireRate}/s</div>
-                <div><span>DPS:</span> ${dps}</div>
-                ${this.splashRadius > 0 ? `<div><span>Zone:</span> ${this.splashRadius}</div>` : ''}
-            </div>
-            ${upgradeInfo}
-        `;
-    }
-    
-    /**
-     * Met à jour la position du popup d'information
-     */
-    updateInfoPopupPosition() {
-        if (this.infoPopup) {
-            // Positionner le popup au-dessus de la tour
-            const popupHeight = this.infoPopup.offsetHeight;
-            const popupWidth = this.infoPopup.offsetWidth;
-            
-            // Ajustement de position pour éviter que le popup sorte de l'écran
-            let left = this.x - popupWidth / 2;
-            let top = this.y - popupHeight - 20; // 20px au-dessus de la tour
-            
-            // Vérifier les limites du plateau de jeu
-            const boardRect = this.gameBoard.getBoundingClientRect();
-            
-            // Ajuster horizontalement si nécessaire
-            if (left < 0) {
-                left = 0;
-            } else if (left + popupWidth > boardRect.width) {
-                left = boardRect.width - popupWidth;
-            }
-            
-            // Ajuster verticalement si nécessaire
-            if (top < 0) {
-                // Si pas assez d'espace au-dessus, afficher en dessous
-                top = this.y + this.size / 2 + 10;
-            }
-            
-            this.infoPopup.style.left = `${left}px`;
-            this.infoPopup.style.top = `${top}px`;
-        }
     }
     
     /**
@@ -266,7 +185,7 @@ class Tower {
         
         // Mettre à jour le popup d'information
         if (this.infoPopup) {
-            this.infoPopup.innerHTML = this.getInfoHTML();
+            this.infoPopup.update();
         }
         
         return true;
@@ -366,24 +285,66 @@ class Tower {
     }
     
     /**
-     * Tire un projectile vers un ennemi
+     * Tire un ou plusieurs projectiles vers un ennemi
      * @param {Enemy} enemy Ennemi ciblé
      */
     fire(enemy) {
-        const projectile = new Projectile(
-            this.x,
-            this.y,
-            enemy,
-            this.damage,
-            this.projectileColor,
-            this.projectileSpeed,
-            this.gameBoard,
-            this.splashRadius,
-            this.splashDamagePercent,
-            this.level // Transmettre le niveau au projectile
-        );
+        // Calculer l'angle de base entre la tour et l'ennemi
+        const dx = enemy.x - this.x;
+        const dy = enemy.y - this.y;
+        const baseAngle = Math.atan2(dy, dx);
         
-        this.projectiles.push(projectile);
+        // Déterminer le nombre total de projectiles à tirer
+        const totalProjectiles = this.multiShot + Math.floor((this.level - 1) / 2); // Le niveau augmente le nombre de projectiles
+        
+        // Calculer l'angle total couvert par les projectiles
+        const totalAngle = this.multiShotAngle * (totalProjectiles - 1);
+        
+        // Tirer les projectiles en éventail
+        for (let i = 0; i < totalProjectiles; i++) {
+            // Calculer l'angle de chaque projectile
+            let angle;
+            if (totalProjectiles === 1) {
+                angle = baseAngle; // Un seul projectile, tir direct
+            } else {
+                // Répartir les angles uniformément
+                angle = baseAngle - (totalAngle / 2) * (Math.PI / 180) + (this.multiShotAngle * i) * (Math.PI / 180);
+            }
+            
+            // Calculer les coordonnées initiales (légèrement décalées pour éviter la superposition)
+            const offsetX = Math.cos(angle) * 5;
+            const offsetY = Math.sin(angle) * 5;
+            
+            // Créer l'objet de cible directionnelle (pour que le projectile suive une trajectoire en ligne droite)
+            const directionalTarget = {
+                x: enemy.x, // Position x de l'ennemi
+                y: enemy.y, // Position y de l'ennemi
+                size: enemy.size, // Taille de l'ennemi
+                isAlive: () => enemy.isAlive(), // Méthode pour vérifier si l'ennemi est en vie
+                takeDamage: (damage, level) => enemy.takeDamage(damage, level), // Méthode pour appliquer les dégâts
+                dead: enemy.dead, // État de l'ennemi
+                id: enemy.id, // ID de l'ennemi
+                // Propriétés supplémentaires pour le tir directionnel
+                directionAngle: angle,
+                isDirectional: i !== Math.floor(totalProjectiles / 2) // Le projectile central suit l'ennemi, les autres vont en ligne droite
+            };
+            
+            // Créer le projectile avec la cible directionnelle
+            const projectile = new Projectile(
+                this.x + offsetX,
+                this.y + offsetY,
+                directionalTarget,
+                this.damage,
+                this.projectileColor,
+                this.projectileSpeed,
+                this.gameBoard,
+                this.splashRadius,
+                this.splashDamagePercent,
+                this.level // Transmettre le niveau au projectile
+            );
+            
+            this.projectiles.push(projectile);
+        }
     }
     
     /**
