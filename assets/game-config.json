@@ -68,17 +68,17 @@
     {
       "id": "multi",
       "name": "Tour multiple",
-      "damage": 8,
+      "damage": 1,
       "range": 180,
       "fireRate": 1.2,
       "cost": 175,
       "color": "#3498db",
       "projectileColor": "#2980b9",
-      "projectileSpeed": 10,
+      "projectileSpeed": 100,
       "splashRadius": 0,
       "splashDamagePercent": 100,
       "multiShot": 5,
-      "multiShotAngle": 10
+      "multiShotAngle": 45
     }
   ],
   "enemies": [
