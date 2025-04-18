@@ -23,9 +23,9 @@ class Projectile {
         this.gameBoard = gameBoard;
         this.splashRadius = splashRadius;
         this.splashDamagePercent = splashDamagePercent;
-        this.level = level; // Niveau du projectile (hérité de la tour)
+        this.level = level;
         
-        this.size = 6 + (level - 1) * 2; // Taille du projectile augmente avec le niveau
+        this.size = 6 + (level - 1) * 2;
         this.hit = false;
         this.toRemove = false;
         
@@ -40,11 +40,9 @@ class Projectile {
         
         // Ajouter un effet visuel selon le niveau
         if (level > 1) {
-            // Ajouter une bordure brillante pour les niveaux supérieurs
             const glowSize = level * 1.5;
             this.element.style.boxShadow = `0 0 ${glowSize}px ${this.color}`;
             
-            // Ajouter une traînée pour les niveaux supérieurs
             if (level >= 3) {
                 this.element.classList.add('projectile-trail');
             }
@@ -53,7 +51,6 @@ class Projectile {
         this.gameBoard.appendChild(this.element);
     }
 
-
     /**
      * Met à jour la position du projectile
      * @param {number} deltaTime Temps écoulé depuis la dernière mise à jour en ms
@@ -61,48 +58,28 @@ class Projectile {
      */
     update(deltaTime) {
         // Si le projectile a déjà touché, doit être supprimé, ou la cible n'existe plus
-        if (this.hit || this.toRemove || !this.target || (this.target.originalEnemy && !this.target.isAlive())) {
+        if (this.hit || this.toRemove || !this.target || !this.target.isAlive()) {
             this.remove();
             return true;
         }
         
-        let dx, dy, distance;
+        // Calculer la direction vers la cible
+        const dx = this.target.x - this.x;
+        const dy = this.target.y - this.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
         
-        // Si c'est un projectile directionnel, se déplacer en ligne droite
-        if (this.target.isDirectional) {
-            // Utiliser l'angle directionnel pour calculer le mouvement
-            dx = Math.cos(this.target.directionAngle);
-            dy = Math.sin(this.target.directionAngle);
-            
-            // Ces vecteurs sont déjà normalisés (longueur = 1) car cosinus et sinus sont dans [-1, 1]
-            
-            // Calculer la distance avec la cible pour vérifier la collision
-            const targetDx = this.target.x - this.x;
-            const targetDy = this.target.y - this.y;
-            distance = Math.sqrt(targetDx * targetDx + targetDy * targetDy);
-        } else {
-            // Comportement normal: suivre la position fixe de la cible au moment du tir
-            dx = this.target.x - this.x;
-            dy = this.target.y - this.y;
-            distance = Math.sqrt(dx * dx + dy * dy);
-            
-            // Normaliser la direction pour avoir un vecteur unitaire
-            if (distance > 0) { // Éviter la division par zéro
-                dx = dx / distance;
-                dy = dy / distance;
-            }
-        }
-
+        // Normaliser la direction
+        const normalizedDx = distance > 0 ? dx / distance : 0;
+        const normalizedDy = distance > 0 ? dy / distance : 0;
+        
         // La distance de collision est le rayon de l'ennemi
         const hitDistance = this.target.size / 2;
         
-        // NOUVELLE APPROCHE: Utiliser une vitesse fixe indépendante du deltaTime
-        // Cela rendra le mouvement plus régulier
-        const fixedDistancePerFrame = this.speed / 60; // En supposant une animation à ~60 FPS
+        // Vitesse fixe indépendante du deltaTime pour un mouvement plus régulier
+        const fixedDistancePerFrame = this.speed / 60;
         
-        // Vérifier d'abord si on va atteindre la cible pendant cette frame
+        // Vérifier si on va atteindre la cible pendant cette frame
         if (distance <= fixedDistancePerFrame + hitDistance) {
-            // Le projectile va atteindre la cible pendant cette frame
             // Placer le projectile au bord de la cible pour un impact visuel cohérent
             if (distance > hitDistance) {
                 const ratio = (distance - hitDistance) / distance;
@@ -111,36 +88,32 @@ class Projectile {
             }
             
             // Mettre à jour la position visuelle
+            this.element.style.transition = 'none';
             this.element.style.left = `${this.x}px`;
             this.element.style.top = `${this.y}px`;
             
             // Déclencher la collision
             this.hit = true;
-
-            // Appliquer les dégâts à la cible principale
             this.target.takeDamage(this.damage, this.level);
-
-            // Ajouter un effet d'impact selon le niveau
             this.createImpactEffect();
 
-            // Si le projectile a des dégâts de zone
+            // Appliquer les dégâts de zone si nécessaire
             if (this.splashRadius > 0) {
                 this.applySplashDamage();
             }
 
-            // Retarder légèrement la suppression du projectile pour que l'effet visuel soit visible
+            // Retarder légèrement la suppression pour que l'effet visuel soit visible
             setTimeout(() => {
                 this.remove();
             }, 150);
 
             return true;
         } else {
-            // Déplacement normal si on n'atteint pas la cible pendant cette frame
-            this.x += dx * fixedDistancePerFrame;
-            this.y += dy * fixedDistancePerFrame;
+            // Déplacement normal
+            this.x += normalizedDx * fixedDistancePerFrame;
+            this.y += normalizedDy * fixedDistancePerFrame;
             
-            // Mettre à jour la position visuelle sans utiliser de transition CSS
-            // pour éviter des problèmes d'interpolation qui pourraient causer l'accélération
+            // Désactiver la transition CSS pour éviter l'accélération
             this.element.style.transition = 'none';
             this.element.style.left = `${this.x}px`;
             this.element.style.top = `${this.y}px`;
@@ -184,13 +157,10 @@ class Projectile {
         impact.style.backgroundColor = this.color;
         impact.style.opacity = '0.7';
         
-        // Ajouter l'élément au jeu
         this.gameBoard.appendChild(impact);
-        
-        // Créer des particules d'explosion
         this.createExplosionParticles(this.target.x, this.target.y, 8 + this.level * 2);
         
-        // Animer l'effet et le supprimer
+        // Supprimer l'élément après l'animation
         setTimeout(() => {
             if (impact.parentNode) {
                 impact.parentNode.removeChild(impact);
@@ -200,13 +170,9 @@ class Projectile {
     
     /**
      * Crée des particules d'explosion à partir d'un point
-     * @param {number} x Position X du centre de l'explosion
-     * @param {number} y Position Y du centre de l'explosion
-     * @param {number} count Nombre de particules à générer
      */
     createExplosionParticles(x, y, count) {
         for (let i = 0; i < count; i++) {
-            // Créer une particule
             const particle = document.createElement('div');
             particle.className = 'explosion-particle';
             particle.style.left = `${x}px`;
@@ -219,11 +185,9 @@ class Projectile {
             const tx = Math.cos(angle) * distance;
             const ty = Math.sin(angle) * distance;
             
-            // Définir la direction de l'animation via CSS variables
             particle.style.setProperty('--tx', `${tx}px`);
             particle.style.setProperty('--ty', `${ty}px`);
             
-            // Ajouter au DOM
             this.gameBoard.appendChild(particle);
             
             // Supprimer après l'animation
@@ -239,13 +203,14 @@ class Projectile {
      * Applique les dégâts de zone autour de la cible principale
      */
     applySplashDamage() {
-        // Si l'instance de jeu n'est pas disponible, ne rien faire
-        if (!window.gameInstance || !window.gameInstance.enemies) {
+        // Récupérer les ennemis du jeu via game.enemies
+        const enemies = this.game?.enemies || window.gameInstance?.enemies;
+        
+        if (!enemies || !Array.isArray(enemies)) {
             return;
         }
         
-        // Utiliser directement la liste des ennemis de l'instance du jeu au lieu du DOM
-        for (const enemy of window.gameInstance.enemies) {
+        for (const enemy of enemies) {
             // Éviter de toucher la cible principale à nouveau et ignorer les ennemis morts
             if (enemy.id === this.target.id || !enemy.isAlive()) {
                 continue;
@@ -273,10 +238,6 @@ class Projectile {
     
     /**
      * Crée une ligne visuelle pour montrer l'effet de splash entre deux points
-     * @param {number} x1 Position X du point d'impact
-     * @param {number} y1 Position Y du point d'impact
-     * @param {number} x2 Position X de l'ennemi touché
-     * @param {number} y2 Position Y de l'ennemi touché
      */
     createSplashLine(x1, y1, x2, y2) {
         // Calculer la longueur et l'angle de la ligne
@@ -293,19 +254,13 @@ class Projectile {
         line.style.top = `${y1}px`;
         line.style.transform = `rotate(${angle}deg)`;
         line.style.backgroundColor = this.color;
-        
-        // Personnaliser selon le niveau
         line.style.height = `${2 + this.level}px`;
         line.style.opacity = '0.6';
         
-        // Ajouter l'élément au jeu
         this.gameBoard.appendChild(line);
         
         // Animer et supprimer
-        setTimeout(() => {
-            line.style.opacity = '0';
-        }, 50);
-        
+        setTimeout(() => line.style.opacity = '0', 50);
         setTimeout(() => {
             if (line.parentNode) {
                 line.parentNode.removeChild(line);

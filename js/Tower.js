@@ -18,10 +18,10 @@ class Tower {
         this.color = config.color;
         this.projectileColor = config.projectileColor;
         this.projectileSpeed = config.projectileSpeed;
-        this.splashRadius = config.splashRadius || 0; // Rayon des dégâts de zone
-        this.splashDamagePercent = config.splashDamagePercent || 100; // Pourcentage des dégâts en zone
-        this.multiShot = config.multiShot || 1; // Nombre de projectiles tirés simultanément
-        this.multiShotAngle = config.multiShotAngle || 0; // Angle entre les projectiles multiples
+        this.splashRadius = config.splashRadius || 0;
+        this.splashDamagePercent = config.splashDamagePercent || 100;
+        this.multiShot = config.multiShot || 1;
+        this.multiShotAngle = config.multiShotAngle || 0;
         
         this.x = x;
         this.y = y;
@@ -30,15 +30,14 @@ class Tower {
         this.size = cellSize * 0.7;
         
         this.lastFireTime = 0;
-        this.target = null;
         this.projectiles = [];
         this.selected = false;
         
         // Système de niveau
         this.level = 1;
         this.maxLevel = 3;
-        this.upgradeMultiplier = config.upgradeMultiplier || 1.5; // Multiplicateur des stats par niveau
-        this.upgradeCost = Math.round(this.cost * 0.75); // Coût d'amélioration = 75% du coût initial
+        this.upgradeMultiplier = config.upgradeMultiplier || 1.5;
+        this.upgradeCost = Math.round(this.cost * 0.75);
         
         // Éléments DOM
         this.element = null;
@@ -62,7 +61,6 @@ class Tower {
         this.element.style.backgroundColor = this.color;
         this.updatePosition();
         
-        // Ajouter un attribut data pour faciliter l'identification
         this.element.dataset.towerId = this.id;
         this.element.dataset.towerType = this.type;
         
@@ -72,7 +70,7 @@ class Tower {
         this.levelIndicator.textContent = this.level;
         this.element.appendChild(this.levelIndicator);
         
-        // Créer l'élément de portée (initialement caché)
+        // Créer l'élément de portée
         this.rangeElement = document.createElement('div');
         this.rangeElement.className = 'tower-range';
         this.rangeElement.style.width = `${this.range * 2}px`;
@@ -81,16 +79,15 @@ class Tower {
         this.rangeElement.style.top = `${this.y - this.range}px`;
         this.rangeElement.style.display = 'none';
         
-        // Créer le popup d'information avec la nouvelle classe
+        // Créer le popup d'information
         this.infoPopup = new TowerInfoPopup(this, this.gameBoard);
         
-        // Ajouter des écouteurs d'événements pour afficher la portée et le popup au survol
+        // Ajouter des écouteurs d'événements
         this.element.addEventListener('mouseenter', () => {
             if (!this.selected) {
                 this.rangeElement.style.display = 'block';
                 this.rangeElement.classList.add('hover-range');
             }
-            // Afficher le popup d'information
             this.infoPopup.show();
         });
         
@@ -99,7 +96,6 @@ class Tower {
                 this.rangeElement.style.display = 'none';
                 this.rangeElement.classList.remove('hover-range');
             }
-            // Cacher le popup d'information
             this.infoPopup.hide();
         });
         
@@ -125,7 +121,6 @@ class Tower {
     
     /**
      * Sélectionne ou désélectionne la tour
-     * @param {boolean} selected État de sélection
      */
     setSelected(selected) {
         this.selected = selected;
@@ -148,10 +143,9 @@ class Tower {
      */
     upgrade() {
         if (this.level >= this.maxLevel) {
-            return false; // Déjà au niveau maximum
+            return false;
         }
         
-        // Augmenter le niveau
         this.level++;
         
         // Améliorer les statistiques
@@ -168,7 +162,6 @@ class Tower {
             this.upgradeCost = Math.round(this.upgradeCost * 1.5);
         }
         
-        // Mettre à jour l'apparence
         this.updateAppearance();
         
         // Mettre à jour les éléments visuels
@@ -183,7 +176,6 @@ class Tower {
             this.rangeElement.style.top = `${this.y - this.range}px`;
         }
         
-        // Mettre à jour le popup d'information
         if (this.infoPopup) {
             this.infoPopup.update();
         }
@@ -197,30 +189,23 @@ class Tower {
     updateAppearance() {
         if (!this.element) return;
         
-        // Ajouter une bordure plus visible pour les tours de haut niveau
         const borderWidth = Math.min(this.level + 1, 4);
         this.element.style.borderWidth = `${borderWidth}px`;
         
-        // Ajouter un effet de brillance plus intense selon le niveau
         const glowSize = this.level * 2;
         this.element.style.boxShadow = `0 0 ${glowSize}px ${this.color}`;
         
-        // Ajuster légèrement la taille selon le niveau
         const scaleFactor = 1 + (this.level - 1) * 0.05;
         this.element.style.transform = `scale(${scaleFactor})`;
     }
     
     /**
      * Vérifie si la tour peut attaquer et attaque si possible
-     * @param {Array} enemies Tableau d'ennemis
-     * @param {number} currentTime Temps courant
-     * @param {number} deltaTime Temps écoulé depuis la dernière frame en ms
      */
     update(enemies, currentTime, deltaTime) {
         // Vérifier si la tour peut tirer (cooldown)
         if (currentTime - this.lastFireTime < 1000 / this.fireRate) {
-            // Même si on ne tire pas, on met quand même à jour les projectiles
-            this.updateProjectiles(currentTime, deltaTime);
+            this.updateProjectiles(deltaTime);
             return;
         }
         
@@ -229,9 +214,8 @@ class Tower {
         let closestDistance = Infinity;
         
         for (const enemy of enemies) {
-            if (!enemy.isAlive()) continue; // Ignorer les ennemis morts
+            if (!enemy.isAlive()) continue;
             
-            // Calcul de la distance entre la tour et l'ennemi
             const dx = enemy.x - this.x;
             const dy = enemy.y - this.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
@@ -251,33 +235,25 @@ class Tower {
             this.element.style.transform = `scale(${1 + (this.level - 1) * 0.05 + 0.1})`;
             setTimeout(() => {
                 if (this.element) {
-                    // Restaurer la transformation d'origine basée sur le niveau
                     const scaleFactor = 1 + (this.level - 1) * 0.05;
                     this.element.style.transform = `scale(${scaleFactor})`;
                 }
             }, 100);
         }
         
-        // Mettre à jour tous les projectiles
-        this.updateProjectiles(currentTime, deltaTime);
+        this.updateProjectiles(deltaTime);
     }
     
     /**
      * Met à jour tous les projectiles de cette tour
-     * @param {number} currentTime Temps courant pour les animations
-     * @param {number} deltaTime Temps écoulé depuis la dernière frame en ms
      */
-    updateProjectiles(currentTime, deltaTime) {
-        // Si la liste de projectiles est vide, rien à faire
+    updateProjectiles(deltaTime) {
         if (this.projectiles.length === 0) return;
         
-        // Parcours des projectiles en sens inverse pour pouvoir supprimer en toute sécurité
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
             const projectile = this.projectiles[i];
-            // Appeler update avec deltaTime pour un mouvement fluide
             const hitTarget = projectile.update(deltaTime);
 
-            // Si le projectile a touché sa cible ou a été supprimé
             if (hitTarget || projectile.toRemove) {
                 this.projectiles.splice(i, 1);
             }
@@ -286,7 +262,6 @@ class Tower {
     
     /**
      * Tire un ou plusieurs projectiles vers un ennemi
-     * @param {Enemy} enemy Ennemi ciblé
      */
     fire(enemy) {
         // Calculer l'angle de base entre la tour et l'ennemi
@@ -294,40 +269,35 @@ class Tower {
         const dy = enemy.y - this.y;
         const baseAngle = Math.atan2(dy, dx);
         
-        // Déterminer le nombre total de projectiles à tirer
-        const totalProjectiles = this.multiShot + Math.floor((this.level - 1) / 2); // Le niveau augmente le nombre de projectiles
-        
-        // Calculer l'angle total couvert par les projectiles
+        // Nombre de projectiles à tirer (augmente avec le niveau)
+        const totalProjectiles = this.multiShot + Math.floor((this.level - 1) / 2);
         const totalAngle = this.multiShotAngle * (totalProjectiles - 1);
         
         // Tirer les projectiles en éventail
         for (let i = 0; i < totalProjectiles; i++) {
-            // Calculer l'angle de chaque projectile
             let angle;
             if (totalProjectiles === 1) {
-                angle = baseAngle; // Un seul projectile, tir direct
+                angle = baseAngle;
             } else {
-                // Répartir les angles uniformément
                 angle = baseAngle - (totalAngle / 2) * (Math.PI / 180) + (this.multiShotAngle * i) * (Math.PI / 180);
             }
             
-            // Calculer les coordonnées initiales (légèrement décalées pour éviter la superposition)
+            // Décalage pour éviter la superposition
             const offsetX = Math.cos(angle) * 5;
             const offsetY = Math.sin(angle) * 5;
 
-            // Créer le projectile avec la cible directionnelle
+            // Créer le projectile
             const projectile = new Projectile(
                 this.x + offsetX,
                 this.y + offsetY,
                 enemy,
-                // directionalTarget,
                 this.damage,
                 this.projectileColor,
                 this.projectileSpeed,
                 this.gameBoard,
                 this.splashRadius,
                 this.splashDamagePercent,
-                this.level // Transmettre le niveau au projectile
+                this.level
             );
             
             this.projectiles.push(projectile);

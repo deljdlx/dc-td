@@ -19,18 +19,20 @@ class Game {
         this.currentWaveConfig = null;
         this.currentEnemyType = null;
         
-        // Le gestionnaire de tourelles sera initialisé une fois la carte créée
         this.towerManager = null;
+        this.updater = null;
         
         this.setupEventListeners();
         this.loadGameConfig();
+        
+        // Rendre l'instance accessible globalement pour les effets de splash
+        window.gameInstance = this;
     }
     
     /**
      * Configure les écouteurs d'événements
      */
     setupEventListeners() {
-        // Bouton pour démarrer une vague
         document.getElementById('start-wave').addEventListener('click', () => {
             if (!this.waveInProgress) {
                 this.startNextWave();
@@ -72,16 +74,14 @@ class Game {
         document.getElementById('wave').textContent = this.wave;
         
         // Démarrer la boucle de jeu
-        this.gameLoop();
+        requestAnimationFrame(this.gameLoop.bind(this));
     }
     
     /**
      * Démarre la prochaine vague d'ennemis
      */
     startNextWave() {
-        if (this.waveInProgress) {
-            return;
-        }
+        if (this.waveInProgress) return;
         
         this.wave++;
         
@@ -109,7 +109,7 @@ class Game {
         const deltaTime = timestamp - this.lastTime;
         this.lastTime = timestamp;
         
-        // Utiliser GameUpdater pour effectuer les mises à jour
+        // Initialiser l'updater si nécessaire
         if (!this.updater) {
             this.updater = new GameUpdater(this);
         }
@@ -141,9 +141,9 @@ class Game {
             enemy.remove();
         }
         
-        // Réinitialiser les tableaux et les propriétés
+        // Réinitialiser les propriétés
         this.enemies = [];
-        this.money = 100;
+        this.money = 200;
         this.lives = 20;
         this.wave = 0;
         this.waveInProgress = false;
@@ -159,21 +159,8 @@ class Game {
      * @param {number} timestamp Horodatage actuel
      */
     gameLoop(timestamp = 0) {
-        // Mettre à jour l'état du jeu
         this.update(timestamp);
-        
-        // Rendre tous les éléments du jeu
-        this.render();
-        
-        // Planifier la prochaine frame
         requestAnimationFrame(this.gameLoop.bind(this));
-    }
-    
-    /**
-     * Dessine tous les éléments du jeu
-     */
-    render() {
-        // Cette méthode reste vide car le rendu est géré par les différentes classes
     }
     
     /**
