@@ -100,7 +100,7 @@ export class TowerManager {
         
         towerConfigs.forEach(tower => {
             const button = document.createElement('button');
-            button.classList.add('tower-button');
+            button.classList.add('tower-button', 'tower-button--' + tower.id);
             button.innerHTML = `
                 <div>${tower.name}</div>
                 <div>Coût: ${tower.cost}</div>

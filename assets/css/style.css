@@ -58,6 +58,13 @@
     --color-ui-popup-border: rgba(203, 213, 225, 0.2); /* Bordure grise transparente */
 }
 
+:root {
+    --dev-illustration-js: url('../../images/devs/js.png');
+    --dev-illustration-fullstack: url('../../images/devs/fullstack.png');
+    --dev-illustration-integration: url('../../images/devs/integration.png');
+    --dev-illustration-devops: url('../../images/devs/devops.png');
+}
+
 /* 
    Ce fichier contient uniquement les variables CSS globales.
    Les styles spécifiques sont maintenant dans les fichiers de composants:

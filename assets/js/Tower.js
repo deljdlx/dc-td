@@ -41,7 +41,9 @@ export class Tower {
     createDOMElements() {
         // Créer l'élément de la tour
         this.element = document.createElement('div');
-        this.element.className = 'tower';
+
+        this.element.classList.add('tower', this.model.type);
+
         this.element.id = `tower-${this.model.id}`;
         this.element.style.width = `${this.size}px`;
         this.element.style.height = `${this.size}px`;

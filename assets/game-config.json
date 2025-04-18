@@ -21,8 +21,8 @@
   },
   "towers": [
     {
-      "id": "archer",
-      "name": "Tour d'archer",
+      "id": "fullstack",
+      "name": "Full Stack",
       "damage": 10,
       "range": 350,
       "fireRate": 1,
@@ -36,8 +36,8 @@
       "multiShotAngle": 0
     },
     {
-      "id": "cannon",
-      "name": "Tour de canon",
+      "id": "js",
+      "name": "Dev JS",
       "damage": 25,
       "range": 120,
       "fireRate": 0.5,
@@ -51,8 +51,8 @@
       "multiShotAngle": 0
     },
     {
-      "id": "magic",
-      "name": "Tour magique",
+      "id": "integration",
+      "name": "Intégrateur",
       "damage": 15,
       "range": 200,
       "fireRate": 0.8,
@@ -66,8 +66,8 @@
       "multiShotAngle": 15
     },
     {
-      "id": "multi",
-      "name": "Tour multiple",
+      "id": "devops",
+      "name": "Devops",
       "damage": 1,
       "range": 180,
       "fireRate": 1.2,

@@ -65,32 +65,6 @@
     animation: pulse-range 1.5s infinite alternate;
 }
 
-/* Icônes représentant les développeurs */
-.tower::before {
-    content: '💻';
-    font-size: 16px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.tower[data-tower-type="frontend"]::before {
-    content: '🎨';  /* Designer/Frontend */
-}
-
-.tower[data-tower-type="backend"]::before {
-    content: '⚙️';  /* Backend */
-}
-
-.tower[data-tower-type="fullstack"]::before {
-    content: '🔧';  /* Fullstack */
-}
-
-.tower[data-tower-type="devops"]::before {
-    content: '🚀';  /* DevOps */
-}
-
 /* Niveaux des développeurs (junior, mid, senior) */
 .tower-level {
     position: absolute;
@@ -166,4 +140,32 @@
     padding: 1px 4px;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.tower::before {
+    width: 48px;
+    height: 48px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+
+    content: ' ';
+}
+
+.tower.fullstack::before {
+    background-image: var(--dev-illustration-fullstack);
+}
+
+.tower.js::before {
+    background-image: var(--dev-illustration-js);
+}
+
+.tower.integration::before {
+    background-image: var(--dev-illustration-integration);
+}
+
+.tower.devops::before {
+    background-image: var(--dev-illustration-devops);
 }

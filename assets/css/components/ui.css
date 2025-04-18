@@ -305,6 +305,17 @@ button#start-wave:active {
     font-size: 13px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
+.tower-button::after {
+    display: block;
+    content: ' ';
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 60px;
+    width: 60px;
+}
+
+
 
 .tower-button:hover {
     transform: translateY(-2px);
@@ -325,22 +336,22 @@ button#start-wave:active {
     gap: 5px;
 }
 
-.tower-button[data-tower-id="frontend"] div:first-child::before {
-    content: '🎨';
-    font-size: 16px;
+/* ================================================== */
+
+.tower-button--fullstack::after {
+    background-image: var(--dev-illustration-fullstack);
 }
 
-.tower-button[data-tower-id="backend"] div:first-child::before {
-    content: '⚙️';
-    font-size: 16px;
+.tower-button--js::after {
+    background-image: var(--dev-illustration-js);
 }
 
-.tower-button[data-tower-id="fullstack"] div:first-child::before {
-    content: '🔧';
-    font-size: 16px;
+.tower-button--integration::after {
+    background-image: var(--dev-illustration-integration);
 }
 
-.tower-button[data-tower-id="devops"] div:first-child::before {
-    content: '🚀';
-    font-size: 16px;
+.tower-button--devops::after {
+    background-image: var(--dev-illustration-devops);
 }
+
+/* ================================================== */
