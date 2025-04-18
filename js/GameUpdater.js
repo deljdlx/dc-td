@@ -115,16 +115,8 @@ class GameUpdater {
      * @param {number} timestamp Horodatage actuel
      */
     updateTowers(timestamp) {
-        // Mettre à jour les tours et collecter leurs projectiles
-        for (const tower of this.game.towers) {
-            tower.update(this.game.enemies, timestamp);
-            
-            // Récupérer les projectiles créés par les tours
-            if (tower.projectiles && tower.projectiles.length > 0) {
-                // Les projectiles sont déjà mis à jour par la tour dans sa méthode update
-                // On n'a donc pas besoin de les mettre à jour ici
-                // On les laisse dans le tableau projectiles de la tour
-            }
-        }
+        // La mise à jour des tours est maintenant gérée directement dans Game.update() par le TowerManager
+        // Cette méthode reste pour compatibilité et au cas où nous aurions des traitements supplémentaires
+        // spécifiques à l'updater
     }
 }
