@@ -727,91 +727,12 @@ class Game {
         const deltaTime = timestamp - this.lastTime;
         this.lastTime = timestamp;
         
-        // Si une vague est en cours, générer des ennemis
-        if (this.waveInProgress) {
-            this.enemySpawnTime += deltaTime;
-            
-            // Trouver le type d'ennemi actuel à générer
-            if (!this.currentEnemyType && this.currentWaveConfig.enemies.length > 0) {
-                this.currentEnemyType = this.currentWaveConfig.enemies[0];
-                this.enemySpawnIndex = 0;
-            }
-            
-            // Générer un nouvel ennemi si c'est le moment
-            if (this.currentEnemyType && this.enemySpawnTime > this.currentEnemyType.delay * 1000) {
-                const enemyConfig = this.gameConfig.enemies.find(enemy => enemy.id === this.currentEnemyType.type);
-                
-                if (enemyConfig) {
-                    this.spawnEnemy(enemyConfig);
-                    this.enemySpawnIndex++;
-                    this.enemySpawnTime = 0;
-                    
-                    // Si tous les ennemis de ce type sont générés, passer au type suivant
-                    if (this.enemySpawnIndex >= this.currentEnemyType.count) {
-                        const currentIndex = this.currentWaveConfig.enemies.indexOf(this.currentEnemyType);
-                        
-                        if (currentIndex < this.currentWaveConfig.enemies.length - 1) {
-                            this.currentEnemyType = this.currentWaveConfig.enemies[currentIndex + 1];
-                            this.enemySpawnIndex = 0;
-                        } else {
-                            this.currentEnemyType = null;
-                        }
-                    }
-                }
-            }
-            
-            // Vérifier si la vague est terminée
-            if (!this.currentEnemyType && this.enemies.length === 0) {
-                this.waveInProgress = false;
-                console.log("Vague terminée!");
-                
-                // Donner un bonus d'or pour avoir terminé la vague
-                this.money += 25 + this.wave * 5;
-                document.getElementById('money').textContent = this.money;
-            }
+        // Utiliser GameUpdater pour effectuer les mises à jour
+        if (!this.updater) {
+            this.updater = new GameUpdater(this);
         }
         
-        // Mettre à jour les ennemis
-        for (let i = this.enemies.length - 1; i >= 0; i--) {
-            const enemy = this.enemies[i];
-            
-            // Si l'ennemi est mort, le supprimer et donner de l'or
-            if (!enemy.isAlive()) {
-                if (!enemy.hasReachedEnd()) {
-                    this.money += enemy.reward;
-                    document.getElementById('money').textContent = this.money;
-                } else {
-                    // L'ennemi a atteint la fin du chemin
-                    this.lives -= enemy.damage;
-                    document.getElementById('lives').textContent = this.lives;
-                    
-                    // Vérifier si le joueur a perdu
-                    if (this.lives <= 0) {
-                        alert("Game Over! Vous avez perdu toutes vos vies!");
-                        this.resetGame();
-                        return;
-                    }
-                }
-                
-                this.enemies.splice(i, 1);
-                continue;
-            }
-            
-            // Mettre à jour la position de l'ennemi
-            enemy.update(deltaTime);
-        }
-        
-        // Mettre à jour les tours et collecter leurs projectiles
-        for (const tower of this.towers) {
-            tower.update(this.enemies, timestamp);
-            
-            // Récupérer les projectiles créés par les tours
-            if (tower.projectiles && tower.projectiles.length > 0) {
-                // Les projectiles sont déjà mis à jour par la tour dans sa méthode update
-                // On n'a donc pas besoin de les mettre à jour ici
-                // On les laisse dans le tableau projectiles de la tour
-            }
-        }
+        this.updater.update(timestamp, deltaTime);
     }
     
     /**
