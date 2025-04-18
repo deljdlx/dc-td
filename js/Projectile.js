@@ -55,7 +55,7 @@ class Projectile {
     
     /**
      * Met à jour la position du projectile
-     * @param {number} deltaTime Temps écoulé depuis la dernière mise à jour
+     * @param {number} deltaTime Temps écoulé depuis la dernière mise à jour en ms
      * @returns {boolean} Vrai si le projectile a touché sa cible
      */
     update(deltaTime) {
@@ -115,9 +115,13 @@ class Projectile {
             return true;
         }
         
-        // Calculer le déplacement à vitesse constante
-        const moveX = dx * this.speed * deltaTime;
-        const moveY = dy * this.speed * deltaTime;
+        // Convertir deltaTime en secondes (car il est en millisecondes)
+        const deltaTimeInSeconds = deltaTime / 1000;
+        
+        // Calculer le déplacement à vitesse constante en utilisant deltaTime en secondes
+        // La vitesse est supposée être en pixels par seconde
+        const moveX = dx * this.speed * deltaTimeInSeconds;
+        const moveY = dy * this.speed * deltaTimeInSeconds;
         
         this.x += moveX;
         this.y += moveY;

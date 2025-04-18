@@ -214,12 +214,13 @@ class Tower {
      * Vérifie si la tour peut attaquer et attaque si possible
      * @param {Array} enemies Tableau d'ennemis
      * @param {number} currentTime Temps courant
+     * @param {number} deltaTime Temps écoulé depuis la dernière frame en ms
      */
-    update(enemies, currentTime) {
+    update(enemies, currentTime, deltaTime) {
         // Vérifier si la tour peut tirer (cooldown)
         if (currentTime - this.lastFireTime < 1000 / this.fireRate) {
             // Même si on ne tire pas, on met quand même à jour les projectiles
-            this.updateProjectiles(currentTime);
+            this.updateProjectiles(currentTime, deltaTime);
             return;
         }
         
@@ -247,38 +248,37 @@ class Tower {
             this.lastFireTime = currentTime;
             
             // Effet visuel de tir
-            this.element.style.transform = 'scale(1.1)';
+            this.element.style.transform = `scale(${1 + (this.level - 1) * 0.05 + 0.1})`;
             setTimeout(() => {
                 if (this.element) {
-                    this.element.style.transform = 'scale(1)';
+                    // Restaurer la transformation d'origine basée sur le niveau
+                    const scaleFactor = 1 + (this.level - 1) * 0.05;
+                    this.element.style.transform = `scale(${scaleFactor})`;
                 }
             }, 100);
         }
         
         // Mettre à jour tous les projectiles
-        this.updateProjectiles(currentTime);
+        this.updateProjectiles(currentTime, deltaTime);
     }
     
     /**
      * Met à jour tous les projectiles de cette tour
-     * @param {number} currentTime Temps courant pour le calcul précis des déplacements
+     * @param {number} currentTime Temps courant pour les animations
+     * @param {number} deltaTime Temps écoulé depuis la dernière frame en ms
      */
-    updateProjectiles(currentTime) {
-        // Calculer deltaTime (si c'est le premier appel, utiliser une petite valeur par défaut)
-        if (!this.lastProjectileUpdateTime) {
-            this.lastProjectileUpdateTime = currentTime - 16; // 16ms = environ 60fps
-        }
-
-        // Utiliser un deltaTime normalisé pour une vitesse constante
-        const deltaTime = (currentTime - this.lastProjectileUpdateTime) / 1000; // Convertir en secondes
-        this.lastProjectileUpdateTime = currentTime;
+    updateProjectiles(currentTime, deltaTime) {
+        // Si la liste de projectiles est vide, rien à faire
+        if (this.projectiles.length === 0) return;
         
+        // Parcours des projectiles en sens inverse pour pouvoir supprimer en toute sécurité
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
             const projectile = this.projectiles[i];
+            // Appeler update avec deltaTime pour un mouvement fluide
             const hitTarget = projectile.update(deltaTime);
 
             // Si le projectile a touché sa cible ou a été supprimé
-            if (hitTarget) {
+            if (hitTarget || projectile.toRemove) {
                 this.projectiles.splice(i, 1);
             }
         }

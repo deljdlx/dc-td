@@ -23,10 +23,22 @@ class GameUpdater {
         
         // Mettre à jour les ennemis
         this.updateEnemies(deltaTime);
-
-
+        
         // Mise à jour des tours via le gestionnaire de tourelles
-        this.game.towerManager.update(timestamp, this.game.enemies);
+        // On passe à la fois le timestamp et le deltaTime pour des calculs précis
+        this.updateTowers(timestamp, deltaTime);
+    }
+    
+    /**
+     * Met à jour les tours et leurs projectiles
+     * @param {number} timestamp Horodatage actuel
+     * @param {number} deltaTime Temps écoulé depuis la dernière frame en ms
+     */
+    updateTowers(timestamp, deltaTime) {
+        // Appeler la mise à jour du gestionnaire de tourelles
+        if (this.game.towerManager) {
+            this.game.towerManager.update(timestamp, deltaTime, this.game.enemies);
+        }
     }
 
     /**

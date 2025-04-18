@@ -642,12 +642,13 @@ class TowerManager {
     /**
      * Mettre à jour les tours
      * @param {number} timestamp Horodatage actuel
+     * @param {number} deltaTime Temps écoulé depuis la dernière frame en ms
      * @param {Array} enemies Liste des ennemis pour ciblage
      */
-    update(timestamp, enemies) {
+    update(timestamp, deltaTime, enemies) {
         // Mettre à jour chaque tour
         for (const tower of this.towers) {
-            tower.update(enemies, timestamp);
+            tower.update(enemies, timestamp, deltaTime);
         }
     }
 }
