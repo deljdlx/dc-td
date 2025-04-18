@@ -333,7 +333,8 @@ class Tower {
             const projectile = new Projectile(
                 this.x + offsetX,
                 this.y + offsetY,
-                directionalTarget,
+                enemy,
+                // directionalTarget,
                 this.damage,
                 this.projectileColor,
                 this.projectileSpeed,

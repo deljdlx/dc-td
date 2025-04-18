@@ -52,7 +52,8 @@ class Projectile {
         
         this.gameBoard.appendChild(this.element);
     }
-    
+
+
     /**
      * Met à jour la position du projectile
      * @param {number} deltaTime Temps écoulé depuis la dernière mise à jour en ms
@@ -67,58 +68,49 @@ class Projectile {
         
         let dx, dy, distance;
         
-        // Si c'est un projectile directionnel, se déplacer en ligne droite
-        if (this.target.isDirectional) {
-            // Utiliser l'angle directionnel pour calculer le mouvement
-            dx = Math.cos(this.target.directionAngle);
-            dy = Math.sin(this.target.directionAngle);
-            
-            // Ces vecteurs sont déjà normalisés (longueur = 1) car cosinus et sinus sont dans [-1, 1]
-            
-            // Calculer la distance avec la cible pour vérifier la collision
-            const targetDx = this.target.x - this.x;
-            const targetDy = this.target.y - this.y;
-            distance = Math.sqrt(targetDx * targetDx + targetDy * targetDy);
-        } else {
-            // Comportement normal: suivre la cible
-            dx = this.target.x - this.x;
-            dy = this.target.y - this.y;
-            distance = Math.sqrt(dx * dx + dy * dy);
-            
-            // Normaliser la direction pour avoir un vecteur unitaire
-            if (distance > 0) { // Éviter la division par zéro
-                dx = dx / distance;
-                dy = dy / distance;
-            }
+
+        // Comportement normal: suivre la cible
+        dx = this.target.x - this.x;
+        dy = this.target.y - this.y;
+        distance = Math.sqrt(dx * dx + dy * dy);
+
+        this.target.element.style.border = '2px solid red'; // Indiquer la cible avec une bordure rouge
+
+        // Normaliser la direction pour avoir un vecteur unitaire
+        if (distance > 0) { // Éviter la division par zéro
+            dx = dx / distance;
+            dy = dy / distance;
         }
+
 
         // Si le projectile est suffisamment proche de la cible (collision)
         // Utiliser le rayon de l'ennemi comme référence principale
         const hitDistance = this.target.size / 2;
-        
+        console.log(distance);
+
         // Vérifier si le projectile a touché l'ennemi
         if (distance <= hitDistance) {
             this.hit = true;
-            
+
             // Appliquer les dégâts à la cible principale
             this.target.takeDamage(this.damage, this.level);
-            
+
             // Ajouter un effet d'impact selon le niveau
             this.createImpactEffect();
-            
+
             // Si le projectile a des dégâts de zone
             if (this.splashRadius > 0) {
                 this.applySplashDamage();
             }
-            
+
             // Retarder légèrement la suppression du projectile pour que l'effet visuel soit visible
             setTimeout(() => {
                 this.remove();
             }, 50);
-            
+
             return true;
         }
-        
+
         // Convertir deltaTime en secondes (car il est en millisecondes)
         const deltaTimeInSeconds = deltaTime / 1000;
         
