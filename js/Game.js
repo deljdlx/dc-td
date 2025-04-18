@@ -2,7 +2,13 @@
  * Classe responsable de l'affichage et de l'interaction du jeu
  * Utilise un modèle pour les données et la logique métier
  */
-class Game {
+import { ModelGame } from './models/ModelGame.js';
+import { Map } from './Map.js';
+import { TowerManager } from './TowerManager.js';
+import { GameUpdater } from './GameUpdater.js';
+import { Enemy } from './Enemy.js';
+
+export class Game {
     /**
      * Crée une nouvelle partie
      * @param {HTMLElement} gameBoard Élément conteneur du jeu

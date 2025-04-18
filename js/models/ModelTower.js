@@ -1,12 +1,14 @@
+import { Utils } from '../Utils.js';
+
 /**
- * Classe représentant le modèle d'une tour, contenant les données et la logique métier
+ * Modèle représentant la logique d'une tour
  */
-class ModelTower {
+export class ModelTower {
     /**
      * Crée un nouveau modèle de tour
      * @param {Object} config Configuration de la tour
-     * @param {number} x Position X de la tour
-     * @param {number} y Position Y de la tour
+     * @param {number} x Position X
+     * @param {number} y Position Y
      */
     constructor(config, x, y) {
         this.id = Utils.generateId();
@@ -15,31 +17,145 @@ class ModelTower {
         this.damage = config.damage;
         this.range = config.range;
         this.fireRate = config.fireRate;
-        this.cost = config.cost;
         this.color = config.color;
-        this.projectileColor = config.projectileColor;
-        this.projectileSpeed = config.projectileSpeed;
-        this.splashRadius = config.splashRadius || 0;
-        this.splashDamagePercent = config.splashDamagePercent || 100;
-        this.multiShot = config.multiShot || 1;
-        this.multiShotAngle = config.multiShotAngle || 0;
-        
+        this.cost = config.cost;
+        this.level = 1;
         this.x = x;
         this.y = y;
+        this.target = null;
         this.lastFireTime = 0;
-        this.projectiles = [];
+        this.upgrades = config.upgrades || [];
         
-        // Système de niveau
-        this.level = 1;
-        this.maxLevel = 3;
+        // Valeurs par défaut pour les propriétés additionnelles
+        this.projectileColor = config.projectileColor || this.color;
+        this.projectileSpeed = config.projectileSpeed || 300;
+        this.splashRadius = config.splashRadius || 0;
+        this.splashDamagePercent = config.splashDamagePercent || 0;
+        this.multiShot = config.multiShot || 1;
+        this.multiShotAngle = config.multiShotAngle || 15;
+        this.maxLevel = config.maxLevel || 3;
         this.upgradeMultiplier = config.upgradeMultiplier || 1.5;
-        this.upgradeCost = Math.round(this.cost * 0.75);
     }
     
     /**
-     * Déplace la tour vers une nouvelle position
-     * @param {number} x Nouvelle position X
-     * @param {number} y Nouvelle position Y
+     * Détermine si la tour peut tirer
+     * @param {number} timestamp Horodatage actuel
+     * @returns {boolean} Vrai si la tour peut tirer
+     */
+    canFire(timestamp) {
+        // Calculer le temps écoulé depuis le dernier tir
+        const elapsedTime = timestamp - this.lastFireTime;
+        
+        // Calculer le délai entre les tirs en millisecondes
+        const fireDelay = 1000 / this.fireRate;
+        
+        // Retourner vrai si suffisamment de temps s'est écoulé
+        return elapsedTime >= fireDelay;
+    }
+    
+    /**
+     * Vérifie si la tour peut attaquer un ennemi et retourne l'ennemi ciblé
+     * @param {Array} enemies Liste des ennemis
+     * @param {number} currentTime Horodatage actuel
+     * @returns {Object|null} Ennemi ciblé ou null si aucun
+     */
+    canAttack(enemies, currentTime) {
+        // Vérifier si la tour peut tirer en fonction du taux de tir
+        if (!this.canFire(currentTime)) {
+            return null;
+        }
+        
+        // Trouver une cible valide
+        return this.calculateTarget(enemies);
+    }
+    
+    /**
+     * Enregistre l'heure de la dernière attaque
+     * @param {number} currentTime Horodatage actuel
+     */
+    recordAttack(currentTime) {
+        this.lastFireTime = currentTime;
+    }
+    
+    /**
+     * Calcule les angles des projectiles à tirer
+     * @param {Object} enemy Ennemi ciblé
+     * @returns {Array} Informations des projectiles à tirer
+     */
+    calculateProjectileAngles(enemy) {
+        const projectiles = [];
+        
+        // Calculer l'angle de base vers l'ennemi
+        const dx = enemy.x - this.x;
+        const dy = enemy.y - this.y;
+        const baseAngle = Math.atan2(dy, dx) * 180 / Math.PI;
+        
+        // Pour chaque projectile à tirer
+        for (let i = 0; i < this.multiShot; i++) {
+            // Calcul de l'angle pour ce projectile
+            let angle;
+            if (this.multiShot === 1) {
+                angle = baseAngle;
+            } else {
+                // Répartir les projectiles en éventail
+                const spreadAngle = this.multiShotAngle * (i - (this.multiShot - 1) / 2);
+                angle = baseAngle + spreadAngle;
+            }
+            
+            // Convertir l'angle en radians
+            const radians = angle * Math.PI / 180;
+            
+            // Calculer le décalage depuis le centre de la tour
+            const offsetDistance = 10; // Distance du centre de la tour
+            const offsetX = Math.cos(radians) * offsetDistance;
+            const offsetY = Math.sin(radians) * offsetDistance;
+            
+            projectiles.push({
+                angle: angle,
+                offsetX: offsetX,
+                offsetY: offsetY
+            });
+        }
+        
+        return projectiles;
+    }
+    
+    /**
+     * Calcule la cible prioritaire parmi les ennemis
+     * @param {Array} enemies Liste des ennemis
+     * @returns {Object|null} Ennemi ciblé ou null si aucun
+     */
+    calculateTarget(enemies) {
+        // Filtrer les ennemis à portée
+        const inRangeEnemies = enemies.filter(enemy => this.isEnemyInRange(enemy));
+        
+        // Si aucun ennemi n'est à portée, retourner null
+        if (inRangeEnemies.length === 0) {
+            return null;
+        }
+        
+        // Prioriser l'ennemi le plus avancé dans son parcours
+        inRangeEnemies.sort((a, b) => b.progressOnPath - a.progressOnPath);
+        return inRangeEnemies[0];
+    }
+    
+    /**
+     * Vérifie si un ennemi est à portée
+     * @param {Enemy} enemy Ennemi à vérifier
+     * @returns {boolean} Vrai si l'ennemi est à portée
+     */
+    isEnemyInRange(enemy) {
+        // Calculer la distance entre la tour et l'ennemi
+        const dx = enemy.x - this.x;
+        const dy = enemy.y - this.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        // Vérifier si l'ennemi est à portée
+        return distance <= this.range;
+    }
+    
+    /**
+     * Déplace la tour à une nouvelle position
      */
     moveTo(x, y) {
         this.x = x;
@@ -51,127 +167,65 @@ class ModelTower {
      * @returns {boolean} Vrai si l'amélioration a réussi
      */
     upgrade() {
+        // Vérifier si la tour a atteint son niveau maximal
         if (this.level >= this.maxLevel) {
             return false;
         }
         
+        // Si des améliorations spécifiques sont définies, les appliquer
+        if (this.upgrades.length > 0 && this.level <= this.upgrades.length) {
+            const upgradeConfig = this.upgrades[this.level - 1];
+            
+            for (const [key, value] of Object.entries(upgradeConfig)) {
+                this[key] = value;
+            }
+        } else {
+            // Amélioration générique : augmenter les statistiques de base
+            this.damage *= this.upgradeMultiplier;
+            this.range *= 1.2;
+            this.fireRate *= 1.1;
+        }
+        
+        // Augmenter le niveau
         this.level++;
-        
-        // Améliorer les statistiques
-        this.damage = Math.round(this.damage * this.upgradeMultiplier);
-        this.range = Math.round(this.range * this.upgradeMultiplier);
-        this.fireRate = +(this.fireRate * this.upgradeMultiplier).toFixed(1);
-        
-        if (this.splashRadius > 0) {
-            this.splashRadius = Math.round(this.splashRadius * this.upgradeMultiplier);
-        }
-        
-        // Calculer le coût de la prochaine amélioration
-        if (this.level < this.maxLevel) {
-            this.upgradeCost = Math.round(this.upgradeCost * 1.5);
-        }
         
         return true;
     }
     
     /**
-     * Vérifie si la tour peut attaquer et renvoie l'ennemi à cibler
-     * @param {Array} enemies Liste des ennemis
-     * @param {number} currentTime Temps actuel en millisecondes
-     * @returns {Object|null} L'ennemi ciblé ou null
+     * Calcule le coût de la prochaine amélioration
+     * @returns {number} Coût de l'amélioration ou 0 si niveau max atteint
      */
-    canAttack(enemies, currentTime) {
-        // Vérifier si la tour peut tirer (cooldown)
-        if (currentTime - this.lastFireTime < 1000 / this.fireRate) {
-            return null;
+    get upgradeCost() {
+        if (this.level >= this.maxLevel) {
+            return 0;
         }
         
-        // Trouver un ennemi à portée
-        let closestEnemy = null;
-        let closestDistance = Infinity;
-        
-        for (const enemy of enemies) {
-            if (!enemy.isAlive()) continue;
-            
-            const dx = enemy.x - this.x;
-            const dy = enemy.y - this.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            
-            if (distance <= this.range && distance < closestDistance) {
-                closestEnemy = enemy;
-                closestDistance = distance;
-            }
-        }
-        
-        return closestEnemy;
+        // Formule de base pour le coût d'amélioration
+        return Math.round(this.cost * Math.pow(this.upgradeMultiplier, this.level));
     }
     
     /**
-     * Calcule les angles pour les projectiles
-     * @param {Object} enemy L'ennemi ciblé
-     * @returns {Array} Liste des angles et offsets pour chaque projectile
+     * Vérifie si une amélioration est disponible
+     * @returns {boolean} Vrai si une amélioration est disponible
      */
-    calculateProjectileAngles(enemy) {
-        const dx = enemy.x - this.x;
-        const dy = enemy.y - this.y;
-        const baseAngle = Math.atan2(dy, dx);
-        
-        // Nombre de projectiles à tirer (augmente avec le niveau)
-        const totalProjectiles = this.multiShot + Math.floor((this.level - 1) / 2);
-        const totalAngle = this.multiShotAngle * (totalProjectiles - 1);
-        
-        const projectilesInfo = [];
-        
-        // Calculer les angles pour chaque projectile
-        for (let i = 0; i < totalProjectiles; i++) {
-            let angle;
-            if (totalProjectiles === 1) {
-                angle = baseAngle;
-            } else {
-                angle = baseAngle - (totalAngle / 2) * (Math.PI / 180) + (this.multiShotAngle * i) * (Math.PI / 180);
-            }
-            
-            // Décalage pour éviter la superposition
-            const offsetX = Math.cos(angle) * 5;
-            const offsetY = Math.sin(angle) * 5;
-            
-            projectilesInfo.push({
-                angle: angle,
-                offsetX: offsetX,
-                offsetY: offsetY
-            });
-        }
-        
-        return projectilesInfo;
+    canUpgrade() {
+        return this.level < this.maxLevel;
     }
     
     /**
-     * Met à jour l'état des projectiles
-     * @param {number} deltaTime Temps écoulé depuis la dernière mise à jour en ms
-     * @returns {Array} Liste des projectiles à supprimer (index)
+     * Récupère les statistiques actuelles de la tour
+     * @returns {Object} Statistiques
      */
-    updateProjectiles(deltaTime) {
-        if (this.projectiles.length === 0) return [];
-        
-        const projectilesToRemove = [];
-        
-        for (let i = this.projectiles.length - 1; i >= 0; i--) {
-            const projectile = this.projectiles[i];
-            const hitTarget = projectile.update(deltaTime);
-
-            if (hitTarget || projectile.toRemove) {
-                projectilesToRemove.push(i);
-            }
-        }
-        
-        return projectilesToRemove;
-    }
-    
-    /**
-     * Enregistre le moment où la tour a tiré
-     * @param {number} currentTime Temps actuel
-     */
-    recordAttack(currentTime) {
-        this.lastFireTime = currentTime;
+    getStats() {
+        return {
+            name: this.name,
+            damage: this.damage,
+            range: this.range,
+            fireRate: this.fireRate,
+            level: this.level,
+            upgradeCost: this.upgradeCost,
+            canUpgrade: this.canUpgrade()
+        };
     }
 }

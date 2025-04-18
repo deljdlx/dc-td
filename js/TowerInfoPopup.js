@@ -1,7 +1,7 @@
 /**
  * Classe qui gère l'affichage des popups d'informations des tours
  */
-class TowerInfoPopup {
+export class TowerInfoPopup {
     /**
      * Crée une nouvelle instance de popup d'informations
      * @param {Tower} tower La tour associée à cette popup

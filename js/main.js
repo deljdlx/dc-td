@@ -1,3 +1,6 @@
+// Import de la classe Game
+import { Game } from './Game.js';
+
 // Attendre que le DOM soit complètement chargé
 document.addEventListener('DOMContentLoaded', () => {
     // Récupérer l'élément conteneur du jeu

@@ -1,8 +1,12 @@
+import { ModelTower } from './models/ModelTower.js';
+import { Projectile } from './Projectile.js';
+import { TowerInfoPopup } from './TowerInfoPopup.js';
+
 /**
  * Classe responsable de l'affichage et de l'interaction d'une tour
  * Utilise un modèle pour les données et la logique métier
  */
-class Tower {
+export class Tower {
     /**
      * Crée une nouvelle tour
      * @param {Object} config Configuration de la tour

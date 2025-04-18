@@ -2,7 +2,9 @@
  * Classe responsable de la mise à jour de l'état du jeu à chaque frame
  * Utilise un modèle pour la logique métier
  */
-class GameUpdater {
+import { ModelGameUpdater } from './models/ModelGameUpdater.js';
+
+export class GameUpdater {
     /**
      * Crée un nouvel updater pour le jeu
      * @param {Game} game Référence à l'instance du jeu

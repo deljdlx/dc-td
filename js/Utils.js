@@ -1,4 +1,7 @@
-class Utils {
+/**
+ * Classe d'utilitaires avec méthodes statiques
+ */
+export class Utils {
     /**
      * Calcule la distance entre deux points
      * @param {Object} point1 Premier point {x, y}

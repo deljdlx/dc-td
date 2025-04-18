@@ -2,7 +2,9 @@
  * Classe responsable de l'affichage et de l'interaction d'une carte
  * Utilise un modèle pour les données et la logique métier
  */
-class Map {
+import { ModelMap } from './models/ModelMap.js';
+
+export class Map {
     /**
      * Crée une nouvelle carte
      * @param {Object} mapConfig Configuration de la carte

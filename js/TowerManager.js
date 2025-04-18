@@ -1,7 +1,10 @@
 /**
  * Classe responsable de la gestion des tourelles (achat, placement, déplacement)
  */
-class TowerManager {
+import { Tower } from './Tower.js';
+import { Utils } from './Utils.js';
+
+export class TowerManager {
     /**
      * Crée un nouveau gestionnaire de tourelles
      * @param {Game} game Référence au jeu

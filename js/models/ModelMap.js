@@ -1,7 +1,9 @@
+import { Utils } from '../Utils.js';
+
 /**
  * Modèle représentant la logique d'une carte
  */
-class ModelMap {
+export class ModelMap {
     /**
      * Crée un nouveau modèle de carte
      * @param {Object} mapConfig Configuration de la carte

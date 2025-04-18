@@ -1,8 +1,10 @@
+import { ModelEnemy } from './models/ModelEnemy.js';
+
 /**
  * Classe responsable de l'affichage et de l'interaction d'un ennemi
  * Utilise un modèle pour les données et la logique métier
  */
-class Enemy {
+export class Enemy {
     /**
      * Crée un nouvel ennemi
      * @param {Object} config Configuration de l'ennemi

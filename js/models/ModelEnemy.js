@@ -1,7 +1,9 @@
+import { Utils } from '../Utils.js';
+
 /**
  * Modèle représentant la logique d'un ennemi
  */
-class ModelEnemy {
+export class ModelEnemy {
     /**
      * Crée un nouveau modèle d'ennemi
      * @param {Object} config Configuration de l'ennemi

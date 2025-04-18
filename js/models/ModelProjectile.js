@@ -1,7 +1,9 @@
+import { Utils } from '../Utils.js';
+
 /**
  * Modèle représentant la logique d'un projectile
  */
-class ModelProjectile {
+export class ModelProjectile {
     /**
      * Crée un nouveau modèle de projectile
      * @param {number} x Position X de départ

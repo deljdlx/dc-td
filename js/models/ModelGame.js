@@ -1,7 +1,7 @@
 /**
  * Modèle représentant la logique du jeu
  */
-class ModelGame {
+export class ModelGame {
     /**
      * Crée un nouveau modèle de jeu
      */

@@ -1,8 +1,10 @@
+import { ModelProjectile } from './models/ModelProjectile.js';
+
 /**
  * Classe responsable de l'affichage et de l'interaction d'un projectile
  * Utilise un modèle pour les données et la logique métier
  */
-class Projectile {
+export class Projectile {
     /**
      * Crée un nouveau projectile
      * @param {number} x Position X de départ

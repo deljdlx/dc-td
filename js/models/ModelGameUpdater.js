@@ -1,7 +1,7 @@
 /**
  * Modèle responsable de la logique de mise à jour du jeu
  */
-class ModelGameUpdater {
+export class ModelGameUpdater {
     /**
      * Crée un nouveau modèle d'updater pour le jeu
      * @param {ModelGame} modelGame Référence au modèle du jeu
