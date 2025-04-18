@@ -1,3 +1,7 @@
+/**
+ * Classe responsable de l'affichage et de l'interaction d'un ennemi
+ * Utilise un modèle pour les données et la logique métier
+ */
 class Enemy {
     /**
      * Crée un nouvel ennemi
@@ -6,24 +10,11 @@ class Enemy {
      * @param {HTMLElement} gameBoard Élément conteneur du jeu
      */
     constructor(config, path, gameBoard) {
-        this.id = Utils.generateId();
-        this.type = config.id;
-        this.name = config.name;
-        this.maxHealth = config.health;
-        this.health = config.health;
-        this.speed = config.speed;
-        this.reward = config.reward;
-        this.damage = config.damage;
-        this.color = config.color;
-        this.size = config.size;
+        // Créer le modèle d'ennemi
+        this.model = new ModelEnemy(config, path);
         
-        this.path = path;
+        // Propriétés d'affichage
         this.gameBoard = gameBoard;
-        this.pathIndex = 0;
-        this.x = path[0].x;
-        this.y = path[0].y;
-        this.dead = false;
-        this.reachedEnd = false;
         
         // Éléments DOM
         this.element = null;
@@ -40,10 +31,10 @@ class Enemy {
         // Créer l'élément de l'ennemi
         this.element = document.createElement('div');
         this.element.className = 'enemy';
-        this.element.id = `enemy-${this.id}`;
-        this.element.style.width = `${this.size}px`;
-        this.element.style.height = `${this.size}px`;
-        this.element.style.backgroundColor = this.color;
+        this.element.id = `enemy-${this.model.id}`;
+        this.element.style.width = `${this.model.size}px`;
+        this.element.style.height = `${this.model.size}px`;
+        this.element.style.backgroundColor = this.model.color;
         
         // Stocker une référence à l'instance dans l'élément DOM pour l'accès depuis les projectiles
         this.element.__enemy_instance = this;
@@ -51,7 +42,7 @@ class Enemy {
         // Créer la barre de vie
         this.healthBarElement = document.createElement('div');
         this.healthBarElement.className = 'health-bar';
-        this.healthBarElement.style.width = `${this.size}px`;
+        this.healthBarElement.style.width = `${this.model.size}px`;
         
         this.healthBarFillElement = document.createElement('div');
         this.healthBarFillElement.className = 'health-bar-fill';
@@ -72,17 +63,17 @@ class Enemy {
      */
     updatePosition() {
         if (this.element) {
-            this.element.style.left = `${this.x - this.size / 2}px`;
-            this.element.style.top = `${this.y - this.size / 2}px`;
+            this.element.style.left = `${this.model.x - this.model.size / 2}px`;
+            this.element.style.top = `${this.model.y - this.model.size / 2}px`;
         }
     }
     
     /**
      * Met à jour la barre de vie
+     * @param {number} healthPercentage Pourcentage de santé (0-100)
      */
-    updateHealthBar() {
+    updateHealthBar(healthPercentage) {
         if (this.healthBarFillElement) {
-            const healthPercentage = (this.health / this.maxHealth) * 100;
             this.healthBarFillElement.style.width = `${healthPercentage}%`;
         }
     }
@@ -93,51 +84,33 @@ class Enemy {
      * @returns {boolean} Vrai si l'ennemi a atteint la fin du chemin
      */
     update(deltaTime) {
-        if (this.dead || this.reachedEnd) {
-            return false;
+        // Utiliser le modèle pour calculer le mouvement
+        const movement = this.model.calculateMovement(deltaTime);
+        
+        // Mettre à jour la position visuelle si l'ennemi a bougé
+        if (movement.moved) {
+            this.updatePosition();
         }
         
-        // Si l'ennemi a atteint la fin du chemin
-        if (this.pathIndex >= this.path.length - 1) {
-            this.reachedEnd = true;
-            return true;
-        }
-        
-        // Déplacer l'ennemi vers le prochain point du chemin
-        const targetPoint = this.path[this.pathIndex + 1];
-        const dx = targetPoint.x - this.x;
-        const dy = targetPoint.y - this.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        
-        if (distance < this.speed) {
-            // L'ennemi a atteint le point, passer au suivant
-            this.pathIndex++;
-            return false;
-        }
-        
-        // Déplacer l'ennemi vers le point
-        const vx = (dx / distance) * this.speed;
-        const vy = (dy / distance) * this.speed;
-        this.x += vx;
-        this.y += vy;
-        
-        // Mettre à jour la position de l'élément DOM
-        this.updatePosition();
-        
-        return false;
+        // Retourner vrai si l'ennemi a atteint la fin du chemin
+        return movement.reachedEnd;
     }
     
     /**
      * Inflige des dégâts à l'ennemi
      * @param {number} damage Quantité de dégâts
+     * @param {number} level Niveau de la tour qui inflige les dégâts (optionnel)
      * @returns {boolean} Vrai si l'ennemi est mort
      */
-    takeDamage(damage) {
-        this.health -= damage;
-        this.updateHealthBar();
+    takeDamage(damage, level = 1) {
+        // Utiliser le modèle pour appliquer les dégâts
+        const healthInfo = this.model.takeDamage(damage);
         
-        if (this.health <= 0 && !this.dead) {
-            this.dead = true;
+        // Mettre à jour la barre de vie
+        this.updateHealthBar(healthInfo.healthPercentage);
+        
+        // Si l'ennemi est mort, jouer l'animation de mort
+        if (healthInfo.died) {
             this.element.style.opacity = '0';
             
             // Ajouter une animation de mort
@@ -151,6 +124,7 @@ class Enemy {
             
             return true;
         }
+        
         return false;
     }
     
@@ -159,7 +133,7 @@ class Enemy {
      * @returns {boolean} Vrai si l'ennemi est en vie
      */
     isAlive() {
-        return !this.dead && !this.reachedEnd;
+        return this.model.isAlive();
     }
     
     /**
@@ -167,7 +141,7 @@ class Enemy {
      * @returns {boolean} Vrai si l'ennemi a atteint la fin
      */
     hasReachedEnd() {
-        return this.reachedEnd;
+        return this.model.hasReachedEnd();
     }
     
     /**
@@ -178,4 +152,23 @@ class Enemy {
             this.element.remove();
         }
     }
+    
+    // Getters pour accéder aux propriétés du modèle
+    get id() { return this.model.id; }
+    get type() { return this.model.type; }
+    get name() { return this.model.name; }
+    get health() { return this.model.health; }
+    get maxHealth() { return this.model.maxHealth; }
+    get speed() { return this.model.speed; }
+    get reward() { return this.model.reward; }
+    get damage() { return this.model.damage; }
+    get color() { return this.model.color; }
+    get size() { return this.model.size; }
+    get x() { return this.model.x; }
+    get y() { return this.model.y; }
+    get dead() { return this.model.dead; }
+    get reachedEnd() { return this.model.reachedEnd; }
+    
+    // Pour la compatibilité avec les classes existantes
+    get originalEnemy() { return null; }
 }
