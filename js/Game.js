@@ -115,11 +115,8 @@ class Game {
         }
         
         this.updater.update(timestamp, deltaTime);
-        
-        // Mise à jour des tours via le gestionnaire de tourelles
-        this.towerManager.update(timestamp, this.enemies);
     }
-    
+
     /**
      * Génère un nouvel ennemi
      * @param {Object} enemyConfig Configuration de l'ennemi
