@@ -314,21 +314,7 @@ class Tower {
             // Calculer les coordonnées initiales (légèrement décalées pour éviter la superposition)
             const offsetX = Math.cos(angle) * 5;
             const offsetY = Math.sin(angle) * 5;
-            
-            // Créer l'objet de cible directionnelle (pour que le projectile suive une trajectoire en ligne droite)
-            const directionalTarget = {
-                x: enemy.x, // Position x de l'ennemi
-                y: enemy.y, // Position y de l'ennemi
-                size: enemy.size, // Taille de l'ennemi
-                isAlive: () => enemy.isAlive(), // Méthode pour vérifier si l'ennemi est en vie
-                takeDamage: (damage, level) => enemy.takeDamage(damage, level), // Méthode pour appliquer les dégâts
-                dead: enemy.dead, // État de l'ennemi
-                id: enemy.id, // ID de l'ennemi
-                // Propriétés supplémentaires pour le tir directionnel
-                directionAngle: angle,
-                isDirectional: i !== Math.floor(totalProjectiles / 2) // Le projectile central suit l'ennemi, les autres vont en ligne droite
-            };
-            
+
             // Créer le projectile avec la cible directionnelle
             const projectile = new Projectile(
                 this.x + offsetX,
