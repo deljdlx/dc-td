@@ -9,6 +9,7 @@
     --anim-trail-opacity-start: 0.7;
     --anim-trail-opacity-end: 0;
     --anim-splash-opacity: 0.8;
+    --anim-splash-opacity-end: 0;
 }
 
 /* Animations */
@@ -82,13 +83,16 @@
     0% {
         opacity: var(--anim-splash-opacity);
         width: 0;
+        filter: blur(0);
     }
-    50% {
+    40% {
         opacity: var(--anim-splash-opacity);
         width: 100%;
+        filter: blur(0.5px);
     }
     100% {
-        opacity: var(--anim-fade-opacity-hidden);
+        opacity: var(--anim-splash-opacity-end);
         width: 100%;
+        filter: blur(1px);
     }
 }

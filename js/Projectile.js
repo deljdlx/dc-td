@@ -210,18 +210,31 @@ export class Projectile {
         // Créer l'élément de ligne
         const line = document.createElement('div');
         line.className = 'splash-line';
-        line.style.width = `${length}px`;
+        
+        // Définir les propriétés de style
+        line.style.maxWidth = `${length}px`; // Utiliser maxWidth au lieu de width pour l'animation CSS
         line.style.left = `${x1}px`;
         line.style.top = `${y1}px`;
         line.style.transform = `rotate(${angle}deg)`;
         line.style.backgroundColor = this.model.color;
         line.style.height = `${2 + this.model.level}px`;
-        line.style.opacity = '0.6';
+        
+        // Augmenter l'opacité selon le niveau
+        const opacityMultiplier = Math.min(1, 0.6 + (this.model.level - 1) * 0.2);
+        line.style.opacity = `${opacityMultiplier}`;
+        
+        // Ajouter un effet de lueur selon le niveau
+        if (this.model.level > 1) {
+            const glowSize = this.model.level * 2;
+            line.style.boxShadow = `0 0 ${glowSize}px ${this.model.color}`;
+        }
         
         this.gameBoard.appendChild(line);
         
-        // Animer et supprimer
-        setTimeout(() => line.style.opacity = '0', 50);
+        // Déclencher l'animation en forçant un reflow
+        line.getBoundingClientRect();
+        
+        // Supprimer après l'animation
         setTimeout(() => {
             if (line.parentNode) {
                 line.parentNode.removeChild(line);

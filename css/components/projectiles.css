@@ -1,6 +1,8 @@
 :root {
     /* Variables de couleur spécifiques aux projectiles */
     --color-projectile-shadow: rgba(255, 255, 255, 0.5);
+    --color-splash-line-opacity: 0.8;
+    --color-splash-glow: rgba(255, 255, 255, 0.3);
 }
 
 /* Projectile styles */
@@ -62,8 +64,13 @@
     position: absolute;
     height: 2px;
     transform-origin: left center;
-    opacity: 0.8;
+    opacity: var(--color-splash-line-opacity);
     z-index: 13;
     pointer-events: none;
     animation: splash-pulse 0.3s ease-out;
+    box-shadow: 0 0 4px var(--color-splash-glow);
+    filter: blur(0.5px);
+    /* Assurer que la ligne est visible même avec une faible opacité */
+    width: 0;
+    transition: width 0.2s ease-out;
 }
