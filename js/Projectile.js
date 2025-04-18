@@ -107,86 +107,53 @@ class Projectile {
         let actualDistanceToMove;
         
         // Vérifier si le projectile va atteindre ou dépasser la cible pendant cette frame
-        if (distance <= hitDistance) {
+        if (distance <= hitDistance && 0) {
             // Le projectile est déjà à l'intérieur de la zone de collision
             actualDistanceToMove = 0;
-            
+
             // Déclencher la collision
             this.hit = true;
-            
+
             // Appliquer les dégâts à la cible principale
             this.target.takeDamage(this.damage, this.level);
-            
+
             // Ajouter un effet d'impact selon le niveau
             this.createImpactEffect();
-            
+
             // Si le projectile a des dégâts de zone
             if (this.splashRadius > 0) {
                 this.applySplashDamage();
             }
-            
+
             // Retarder légèrement la suppression du projectile pour que l'effet visuel soit visible
             setTimeout(() => {
                 this.remove();
             }, 150);
-            
-            return true;
-        } else if (distance - hitDistance <= maxDistanceToMove) {
-            // Le projectile va atteindre la cible pendant cette frame
-            // Donc on limite son mouvement pour qu'il s'arrête exactement à la limite de collision
-            actualDistanceToMove = distance - hitDistance;
-            
-            // Déplacer le projectile
-            this.x += dx * actualDistanceToMove;
-            this.y += dy * actualDistanceToMove;
-            
-            // Mettre à jour la position visuelle
-            this.element.style.left = `${this.x - this.size / 2}px`;
-            this.element.style.top = `${this.y - this.size / 2}px`;
-            
-            // Puis on déclenche la collision immédiatement
-            this.hit = true;
-            
-            // Appliquer les dégâts à la cible principale
-            this.target.takeDamage(this.damage, this.level);
-            
-            // Ajouter un effet d'impact selon le niveau
-            this.createImpactEffect();
-            
-            // Si le projectile a des dégâts de zone
-            if (this.splashRadius > 0) {
-                this.applySplashDamage();
-            }
-            
-            // Retarder légèrement la suppression du projectile pour que l'effet visuel soit visible
-            setTimeout(() => {
-                this.remove();
-            }, 150);
-            
+
             return true;
         } else {
             // Le projectile ne va pas atteindre la cible pendant cette frame
             // Il se déplace normalement
             actualDistanceToMove = maxDistanceToMove;
-            
+
             // Appliquer le mouvement
             this.x += dx * actualDistanceToMove;
             this.y += dy * actualDistanceToMove;
-            
+
             // Mettre à jour la position visuelle
             this.element.style.left = `${this.x - this.size / 2}px`;
             this.element.style.top = `${this.y - this.size / 2}px`;
         }
-        
+
         // Vérifier si le projectile est sorti des limites du jeu
         const gameWidth = this.gameBoard.clientWidth;
         const gameHeight = this.gameBoard.clientHeight;
-        
+
         if (this.x < -50 || this.x > gameWidth + 50 || this.y < -50 || this.y > gameHeight + 50) {
             this.remove();
             return true;
         }
-        
+
         return false;
     }
     
@@ -197,7 +164,7 @@ class Projectile {
         // Créer un élément pour l'effet d'impact
         const impact = document.createElement('div');
         impact.className = 'impact-effect';
-        
+
         // Personnaliser l'effet selon le niveau
         const size = 20 + (this.level - 1) * 10;
         const duration = 300 + (this.level - 1) * 100;
