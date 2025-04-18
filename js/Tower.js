@@ -240,7 +240,7 @@ class Tower {
                 closestDistance = distance;
             }
         }
-        
+
         // Si un ennemi est trouvé, tirer
         if (closestEnemy) {
             this.fire(closestEnemy);

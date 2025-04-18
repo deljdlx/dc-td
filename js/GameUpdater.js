@@ -27,11 +27,8 @@ class GameUpdater {
 
         // Mise à jour des tours via le gestionnaire de tourelles
         this.game.towerManager.update(timestamp, this.game.enemies);
-        
-        // Mettre à jour les tours et leurs projectiles
-        // this.updateTowers(timestamp);
     }
-    
+
     /**
      * Met à jour la progression de la vague en cours
      * @param {number} deltaTime Temps écoulé depuis la dernière frame en ms
@@ -113,27 +110,4 @@ class GameUpdater {
             enemy.update(deltaTime);
         }
     }
-    
-    /**
-     * Met à jour les tours et leurs projectiles
-     * @param {number} timestamp Horodatage actuel
-     */
-    // updateTowers(timestamp) {
-    //     // La mise à jour principale des tours est gérée par TowerManager dans Game.update()
-    //     // Cependant, cette méthode reste nécessaire pour gérer les projectiles dans le cas où
-    //     // des projectiles existeraient encore mais que la tour aurait été supprimée ou vendue
-
-    //     // Récupérer toutes les tours depuis le TowerManager
-    //     const towers = this.game.towers;
-
-    //     // S'assurer que tous les projectiles sont correctement mis à jour
-    //     for (const tower of towers) {
-    //         // Vérifier si la tour a des projectiles actifs
-    //         if (tower.projectiles && tower.projectiles.length > 0) {
-    //             // Les projectiles sont déjà mis à jour lors de l'appel à tower.update()
-    //             // Mais on pourrait ajouter ici des traitements spécifiques supplémentaires
-    //             // liés à la gestion globale des projectiles si nécessaire
-    //         }
-    //     }
-    // }
 }

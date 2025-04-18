@@ -87,7 +87,7 @@ class Projectile {
             dx = dx / distance;
             dy = dy / distance;
         }
-        
+
         // Si le projectile est suffisamment proche de la cible (collision)
         // Utiliser le rayon de l'ennemi comme référence principale
         const hitDistance = this.target.size / 2;

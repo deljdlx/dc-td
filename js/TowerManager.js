@@ -638,7 +638,7 @@ class TowerManager {
             button.classList.remove('selected');
         });
     }
-    
+
     /**
      * Mettre à jour les tours
      * @param {number} timestamp Horodatage actuel
