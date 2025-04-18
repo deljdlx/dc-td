@@ -428,10 +428,7 @@ class TowerManager {
             
             // Ajouter la tour et déduire le coût
             this.towers.push(tower);
-            this.game.money -= towerConfig.cost;
-            
-            // Mettre à jour l'affichage de l'or
-            document.getElementById('money').textContent = this.game.money;
+            this.game.spendMoney(towerConfig.cost);
             
             // Indiquer que l'action a été complétée avec succès
             console.log(`Tour ${towerConfig.name} placée avec succès`);
@@ -595,10 +592,7 @@ class TowerManager {
         
         // Ajouter la tour et déduire le coût
         this.towers.push(tower);
-        this.game.money -= towerConfig.cost;
-        
-        // Mettre à jour l'affichage de l'or
-        document.getElementById('money').textContent = this.game.money;
+        this.game.spendMoney(towerConfig.cost);
     }
     
     /**

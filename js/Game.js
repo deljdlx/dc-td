@@ -1,26 +1,19 @@
+/**
+ * Classe responsable de l'affichage et de l'interaction du jeu
+ * Utilise un modèle pour les données et la logique métier
+ */
 class Game {
     /**
      * Crée une nouvelle partie
      * @param {HTMLElement} gameBoard Élément conteneur du jeu
      */
     constructor(gameBoard) {
+        // Propriétés d'affichage et d'interaction
         this.gameBoard = gameBoard;
-        this.gameConfig = null;
-        this.map = null;
-        this.enemies = [];
-        this.money = 200;
-        this.lives = 20;
-        this.wave = 0;
-        this.waveInProgress = false;
-        
-        this.lastTime = 0;
-        this.enemySpawnTime = 0;
-        this.enemySpawnIndex = 0;
-        this.currentWaveConfig = null;
-        this.currentEnemyType = null;
-        
-        this.towerManager = null;
         this.updater = null;
+        
+        // Créer le modèle du jeu
+        this.model = new ModelGame();
         
         this.setupEventListeners();
         this.loadGameConfig();
@@ -34,7 +27,7 @@ class Game {
      */
     setupEventListeners() {
         document.getElementById('start-wave').addEventListener('click', () => {
-            if (!this.waveInProgress) {
+            if (!this.model.waveInProgress) {
                 this.startNextWave();
             }
         });
@@ -47,7 +40,7 @@ class Game {
         fetch('assets/game-config.json')
             .then(response => response.json())
             .then(data => {
-                this.gameConfig = data;
+                this.model.init(data);
                 this.initGame();
             })
             .catch(error => {
@@ -60,45 +53,44 @@ class Game {
      */
     initGame() {
         // Création de la carte
-        this.map = new Map(this.gameConfig.map, this.gameBoard);
+        this.map = new Map(this.model.gameConfig.map, this.gameBoard);
+        this.model.setMap(this.map);
         
         // Création du gestionnaire de tourelles
         this.towerManager = new TowerManager(this, this.gameBoard, this.map);
+        this.model.setTowerManager(this.towerManager);
         
         // Création des boutons pour les tours
-        this.towerManager.createTowerButtons(this.gameConfig.towers);
+        this.towerManager.createTowerButtons(this.model.gameConfig.towers);
         
         // Mettre à jour l'affichage initial
-        document.getElementById('money').textContent = this.money;
-        document.getElementById('lives').textContent = this.lives;
-        document.getElementById('wave').textContent = this.wave;
+        this.updateDisplay();
         
         // Démarrer la boucle de jeu
         requestAnimationFrame(this.gameLoop.bind(this));
     }
     
     /**
+     * Met à jour l'affichage des informations du jeu
+     */
+    updateDisplay() {
+        document.getElementById('money').textContent = this.model.money;
+        document.getElementById('lives').textContent = this.model.lives;
+        document.getElementById('wave').textContent = this.model.wave;
+    }
+    
+    /**
      * Démarre la prochaine vague d'ennemis
      */
     startNextWave() {
-        if (this.waveInProgress) return;
+        const waveResult = this.model.startNextWave();
         
-        this.wave++;
-        
-        // Vérifier si toutes les vagues sont terminées
-        if (this.wave > this.gameConfig.waves.length) {
+        if (waveResult.success) {
+            // Mettre à jour l'affichage de la vague
+            document.getElementById('wave').textContent = waveResult.wave;
+        } else if (waveResult.gameCompleted) {
             alert("Félicitations! Vous avez vaincu toutes les vagues d'ennemis!");
-            return;
         }
-        
-        this.waveInProgress = true;
-        this.enemySpawnTime = 0;
-        this.enemySpawnIndex = 0;
-        this.currentWaveConfig = this.gameConfig.waves[this.wave - 1];
-        this.currentEnemyType = null;
-        
-        // Mettre à jour l'affichage de la vague
-        document.getElementById('wave').textContent = this.wave;
     }
     
     /**
@@ -106,8 +98,8 @@ class Game {
      * @param {number} timestamp Horodatage actuel
      */
     update(timestamp) {
-        const deltaTime = timestamp - this.lastTime;
-        this.lastTime = timestamp;
+        const deltaTime = timestamp - this.model.lastTime;
+        this.model.lastTime = timestamp;
         
         // Initialiser l'updater si nécessaire
         if (!this.updater) {
@@ -124,7 +116,67 @@ class Game {
     spawnEnemy(enemyConfig) {
         const pathCoordinates = this.map.getPathCoordinates();
         const enemy = new Enemy(enemyConfig, pathCoordinates, this.gameBoard);
-        this.enemies.push(enemy);
+        this.model.addEnemy(enemy);
+    }
+    
+    /**
+     * Gère la défaite d'un ennemi
+     * @param {number} index Index de l'ennemi
+     * @param {number} reward Récompense en or
+     */
+    enemyDefeated(index, reward) {
+        this.model.enemyDefeated(reward);
+        this.model.removeEnemy(index);
+        this.updateDisplay();
+    }
+    
+    /**
+     * Gère l'arrivée d'un ennemi à la fin du chemin
+     * @param {number} index Index de l'ennemi
+     * @param {number} damage Dégâts infligés
+     */
+    enemyReachedEnd(index, damage) {
+        const result = this.model.enemyReachedEnd(damage);
+        this.model.removeEnemy(index);
+        
+        // Mettre à jour l'affichage
+        document.getElementById('lives').textContent = result.lives;
+        
+        // Vérifier si le joueur a perdu
+        if (result.gameOver) {
+            alert("Game Over! Vous avez perdu toutes vos vies!");
+            this.resetGame();
+        }
+    }
+    
+    /**
+     * Signale qu'une vague est terminée
+     */
+    waveCompleted() {
+        this.model.waveCompleted();
+        this.updateDisplay();
+    }
+    
+    /**
+     * Vérifie si le joueur peut acheter une tour
+     * @param {number} cost Coût de la tour
+     * @returns {boolean} Vrai si le joueur a assez d'argent
+     */
+    canAfford(cost) {
+        return this.model.canAfford(cost);
+    }
+    
+    /**
+     * Dépense de l'or pour une tour
+     * @param {number} cost Coût de la tour
+     * @returns {boolean} Vrai si la transaction a réussi
+     */
+    spendMoney(cost) {
+        const success = this.model.spendMoney(cost);
+        if (success) {
+            this.updateDisplay();
+        }
+        return success;
     }
     
     /**
@@ -137,21 +189,15 @@ class Game {
         }
         
         // Supprimer tous les ennemis du DOM
-        for (const enemy of this.enemies) {
+        for (const enemy of this.model.enemies) {
             enemy.remove();
         }
         
-        // Réinitialiser les propriétés
-        this.enemies = [];
-        this.money = 200;
-        this.lives = 20;
-        this.wave = 0;
-        this.waveInProgress = false;
+        // Réinitialiser le modèle
+        this.model.reset();
         
         // Mettre à jour l'affichage
-        document.getElementById('money').textContent = this.money;
-        document.getElementById('lives').textContent = this.lives;
-        document.getElementById('wave').textContent = this.wave;
+        this.updateDisplay();
     }
     
     /**
@@ -163,11 +209,23 @@ class Game {
         requestAnimationFrame(this.gameLoop.bind(this));
     }
     
-    /**
-     * Récupère les tours du gestionnaire de tourelles
-     * @returns {Array} Liste des tours
-     */
-    get towers() {
-        return this.towerManager ? this.towerManager.towers : [];
-    }
+    // Getters pour accéder aux propriétés du modèle
+    get gameConfig() { return this.model.gameConfig; }
+    get enemies() { return this.model.enemies; }
+    get money() { return this.model.money; }
+    get lives() { return this.model.lives; }
+    get wave() { return this.model.wave; }
+    get waveInProgress() { return this.model.waveInProgress; }
+    get lastTime() { return this.model.lastTime; }
+    get enemySpawnTime() { return this.model.enemySpawnTime; }
+    get enemySpawnIndex() { return this.model.enemySpawnIndex; }
+    get currentWaveConfig() { return this.model.currentWaveConfig; }
+    get currentEnemyType() { return this.model.currentEnemyType; }
+    get towers() { return this.model.towers; }
+
+    // Setters pour les propriétés qui doivent être modifiables de l'extérieur
+    set enemySpawnTime(value) { this.model.enemySpawnTime = value; }
+    set enemySpawnIndex(value) { this.model.enemySpawnIndex = value; }
+    set currentEnemyType(value) { this.model.currentEnemyType = value; }
+    set waveInProgress(value) { this.model.waveInProgress = value; }
 }

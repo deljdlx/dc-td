@@ -1,5 +1,6 @@
 /**
  * Classe responsable de la mise à jour de l'état du jeu à chaque frame
+ * Utilise un modèle pour la logique métier
  */
 class GameUpdater {
     /**
@@ -8,6 +9,8 @@ class GameUpdater {
      */
     constructor(game) {
         this.game = game;
+        // Créer le modèle d'updater
+        this.model = new ModelGameUpdater(this.game.model);
     }
 
     /**
@@ -25,7 +28,6 @@ class GameUpdater {
         this.updateEnemies(deltaTime);
         
         // Mise à jour des tours via le gestionnaire de tourelles
-        // On passe à la fois le timestamp et le deltaTime pour des calculs précis
         this.updateTowers(timestamp, deltaTime);
     }
     
@@ -46,45 +48,18 @@ class GameUpdater {
      * @param {number} deltaTime Temps écoulé depuis la dernière frame en ms
      */
     updateWaveProgress(deltaTime) {
-        this.game.enemySpawnTime += deltaTime;
+        // Déléguer le calcul de la progression au modèle
+        const waveResult = this.model.calculateWaveProgress(deltaTime);
         
-        // Trouver le type d'ennemi actuel à générer
-        if (!this.game.currentEnemyType && this.game.currentWaveConfig.enemies.length > 0) {
-            this.game.currentEnemyType = this.game.currentWaveConfig.enemies[0];
-            this.game.enemySpawnIndex = 0;
+        // Si un ennemi doit être généré
+        if (waveResult.spawnedEnemy && waveResult.enemyConfig) {
+            this.game.spawnEnemy(waveResult.enemyConfig);
         }
         
-        // Générer un nouvel ennemi si c'est le moment
-        if (this.game.currentEnemyType && this.game.enemySpawnTime > this.game.currentEnemyType.delay * 1000) {
-            const enemyConfig = this.game.gameConfig.enemies.find(enemy => enemy.id === this.game.currentEnemyType.type);
-            
-            if (enemyConfig) {
-                this.game.spawnEnemy(enemyConfig);
-                this.game.enemySpawnIndex++;
-                this.game.enemySpawnTime = 0;
-                
-                // Si tous les ennemis de ce type sont générés, passer au type suivant
-                if (this.game.enemySpawnIndex >= this.game.currentEnemyType.count) {
-                    const currentIndex = this.game.currentWaveConfig.enemies.indexOf(this.game.currentEnemyType);
-                    
-                    if (currentIndex < this.game.currentWaveConfig.enemies.length - 1) {
-                        this.game.currentEnemyType = this.game.currentWaveConfig.enemies[currentIndex + 1];
-                        this.game.enemySpawnIndex = 0;
-                    } else {
-                        this.game.currentEnemyType = null;
-                    }
-                }
-            }
-        }
-        
-        // Vérifier si la vague est terminée
-        if (!this.game.currentEnemyType && this.game.enemies.length === 0) {
-            this.game.waveInProgress = false;
+        // Si la vague est terminée
+        if (waveResult.waveCompleted) {
             console.log("Vague terminée!");
-            
-            // Donner un bonus d'or pour avoir terminé la vague
-            this.game.money += 25 + this.game.wave * 5;
-            document.getElementById('money').textContent = this.game.money;
+            this.game.waveCompleted();
         }
     }
     
@@ -93,33 +68,30 @@ class GameUpdater {
      * @param {number} deltaTime Temps écoulé depuis la dernière frame en ms
      */
     updateEnemies(deltaTime) {
-        for (let i = this.game.enemies.length - 1; i >= 0; i--) {
-            const enemy = this.game.enemies[i];
-            
-            // Si l'ennemi est mort, le supprimer et donner de l'or
-            if (!enemy.isAlive()) {
-                if (!enemy.hasReachedEnd()) {
-                    this.game.money += enemy.reward;
-                    document.getElementById('money').textContent = this.game.money;
-                } else {
-                    // L'ennemi a atteint la fin du chemin
-                    this.game.lives -= enemy.damage;
-                    document.getElementById('lives').textContent = this.game.lives;
-                    
-                    // Vérifier si le joueur a perdu
-                    if (this.game.lives <= 0) {
-                        alert("Game Over! Vous avez perdu toutes vos vies!");
-                        this.game.resetGame();
-                        return;
-                    }
-                }
-                
-                this.game.enemies.splice(i, 1);
-                continue;
+        // D'abord, mettre à jour la position de tous les ennemis actifs
+        for (const enemy of this.game.enemies) {
+            if (enemy.isAlive()) {
+                enemy.update(deltaTime);
             }
-            
-            // Mettre à jour la position de l'ennemi
-            enemy.update(deltaTime);
+        }
+        
+        // Ensuite, analyser les changements d'état des ennemis
+        const enemyResults = this.model.analyzeEnemies(deltaTime);
+        
+        // Traiter les ennemis vaincus (qui ont été tués)
+        for (const defeated of enemyResults.defeatedEnemies) {
+            this.game.enemyDefeated(defeated.index, defeated.enemy.reward);
+        }
+        
+        // Traiter les ennemis qui ont atteint la fin du chemin
+        for (const endReached of enemyResults.endReachedEnemies) {
+            this.game.enemyReachedEnd(endReached.index, endReached.enemy.damage);
+        }
+        
+        // Vérifier si le jeu est terminé
+        if (enemyResults.gameOver) {
+            alert("Game Over! Vous avez perdu toutes vos vies!");
+            this.game.resetGame();
         }
     }
 }

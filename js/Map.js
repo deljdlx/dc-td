@@ -1,3 +1,7 @@
+/**
+ * Classe responsable de l'affichage et de l'interaction d'une carte
+ * Utilise un modèle pour les données et la logique métier
+ */
 class Map {
     /**
      * Crée une nouvelle carte
@@ -5,20 +9,17 @@ class Map {
      * @param {HTMLElement} gameBoard Élément conteneur du jeu
      */
     constructor(mapConfig, gameBoard) {
-        this.width = mapConfig.width;
-        this.height = mapConfig.height;
-        this.cellSize = mapConfig.cellSize;
-        this.startPoint = mapConfig.startPoint;
-        this.endPoint = mapConfig.endPoint;
-        this.path = mapConfig.path;
+        // Créer le modèle de la carte
+        this.model = new ModelMap(mapConfig);
+        
+        // Propriétés d'affichage
         this.gameBoard = gameBoard;
         this.mapContainer = null;
-        this.cells = [];
         this.cellElements = [];
         
         // Initialiser le conteneur du jeu à la bonne taille
-        this.gameBoard.style.width = `${this.width * this.cellSize}px`;
-        this.gameBoard.style.height = `${this.height * this.cellSize}px`;
+        this.gameBoard.style.width = `${this.model.width * this.model.cellSize}px`;
+        this.gameBoard.style.height = `${this.model.height * this.model.cellSize}px`;
         
         this.createMapElements();
     }
@@ -32,17 +33,15 @@ class Map {
         this.mapContainer.className = 'map-container';
         this.gameBoard.appendChild(this.mapContainer);
         
-        // Initialiser les cellules
-        this.initCells();
-        
         // Créer les éléments DOM pour chaque cellule
-        this.cellElements = this.cells.map(cell => {
+        const cells = this.model.getAllCells();
+        this.cellElements = cells.map(cell => {
             const cellElement = document.createElement('div');
             cellElement.className = `cell ${cell.isPath ? 'path' : 'buildable'}`;
-            cellElement.style.width = `${this.cellSize}px`;
-            cellElement.style.height = `${this.cellSize}px`;
-            cellElement.style.left = `${cell.x * this.cellSize}px`;
-            cellElement.style.top = `${cell.y * this.cellSize}px`;
+            cellElement.style.width = `${this.model.cellSize}px`;
+            cellElement.style.height = `${this.model.cellSize}px`;
+            cellElement.style.left = `${cell.x * this.model.cellSize}px`;
+            cellElement.style.top = `${cell.y * this.model.cellSize}px`;
             
             // Ajouter un attribut data pour faciliter l'identification
             cellElement.dataset.x = cell.x;
@@ -57,46 +56,30 @@ class Map {
     }
     
     /**
-     * Initialise les cellules de la carte
-     */
-    initCells() {
-        this.cells = [];
-        for (let y = 0; y < this.height; y++) {
-            for (let x = 0; x < this.width; x++) {
-                const isPath = Utils.isPointInArray({x, y}, this.path);
-                this.cells.push({
-                    x,
-                    y,
-                    isPath,
-                    isBuildable: !isPath
-                });
-            }
-        }
-    }
-    
-    /**
      * Crée les points spéciaux (départ et arrivée)
      */
     createSpecialPoints() {
         // Point de départ
-        const startCenter = this.getCellCenter(this.startPoint.x, this.startPoint.y);
+        const startPoint = this.model.startPoint;
+        const startCenter = this.model.getCellCenter(startPoint.x, startPoint.y);
         const startPointElement = document.createElement('div');
         startPointElement.className = 'start-point';
-        startPointElement.style.width = `${this.cellSize / 2}px`;
-        startPointElement.style.height = `${this.cellSize / 2}px`;
-        startPointElement.style.left = `${startCenter.x - this.cellSize / 4}px`;
-        startPointElement.style.top = `${startCenter.y - this.cellSize / 4}px`;
+        startPointElement.style.width = `${this.model.cellSize / 2}px`;
+        startPointElement.style.height = `${this.model.cellSize / 2}px`;
+        startPointElement.style.left = `${startCenter.x - this.model.cellSize / 4}px`;
+        startPointElement.style.top = `${startCenter.y - this.model.cellSize / 4}px`;
         startPointElement.style.position = 'absolute';
         this.mapContainer.appendChild(startPointElement);
         
         // Point d'arrivée
-        const endCenter = this.getCellCenter(this.endPoint.x, this.endPoint.y);
+        const endPoint = this.model.endPoint;
+        const endCenter = this.model.getCellCenter(endPoint.x, endPoint.y);
         const endPointElement = document.createElement('div');
         endPointElement.className = 'end-point';
-        endPointElement.style.width = `${this.cellSize / 2}px`;
-        endPointElement.style.height = `${this.cellSize / 2}px`;
-        endPointElement.style.left = `${endCenter.x - this.cellSize / 4}px`;
-        endPointElement.style.top = `${endCenter.y - this.cellSize / 4}px`;
+        endPointElement.style.width = `${this.model.cellSize / 2}px`;
+        endPointElement.style.height = `${this.model.cellSize / 2}px`;
+        endPointElement.style.left = `${endCenter.x - this.model.cellSize / 4}px`;
+        endPointElement.style.top = `${endCenter.y - this.model.cellSize / 4}px`;
         endPointElement.style.position = 'absolute';
         this.mapContainer.appendChild(endPointElement);
     }
@@ -108,7 +91,7 @@ class Map {
      * @param {boolean} isValid Si la cellule est valide
      */
     markCell(x, y, isValid) {
-        if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
+        if (!this.model.isInBounds(x, y)) {
             return;
         }
         
@@ -136,6 +119,8 @@ class Map {
         });
     }
     
+    // Méthodes déléguées au modèle
+    
     /**
      * Convertit les coordonnées de la souris en indices de cellule
      * @param {number} mouseX Coordonnée X de la souris
@@ -143,9 +128,7 @@ class Map {
      * @returns {Object} Coordonnées de la cellule {x, y}
      */
     getCellFromCoordinates(mouseX, mouseY) {
-        const x = Math.floor(mouseX / this.cellSize);
-        const y = Math.floor(mouseY / this.cellSize);
-        return {x, y};
+        return this.model.getCellFromCoordinates(mouseX, mouseY);
     }
     
     /**
@@ -155,12 +138,7 @@ class Map {
      * @returns {boolean} Vrai si la position est constructible
      */
     isBuildable(x, y) {
-        if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
-            return false;
-        }
-        
-        const cell = this.cells.find(c => c.x === x && c.y === y);
-        return cell && cell.isBuildable;
+        return this.model.isBuildable(x, y);
     }
     
     /**
@@ -170,10 +148,7 @@ class Map {
      * @returns {Object} Coordonnées {x, y} du centre de la cellule
      */
     getCellCenter(x, y) {
-        return {
-            x: (x + 0.5) * this.cellSize,
-            y: (y + 0.5) * this.cellSize
-        };
+        return this.model.getCellCenter(x, y);
     }
     
     /**
@@ -181,6 +156,15 @@ class Map {
      * @returns {Array} Tableau de coordonnées du chemin
      */
     getPathCoordinates() {
-        return this.path.map(point => this.getCellCenter(point.x, point.y));
+        return this.model.getPathCoordinates();
     }
+    
+    // Getters pour accéder aux propriétés du modèle
+    get width() { return this.model.width; }
+    get height() { return this.model.height; }
+    get cellSize() { return this.model.cellSize; }
+    get startPoint() { return this.model.startPoint; }
+    get endPoint() { return this.model.endPoint; }
+    get path() { return this.model.path; }
+    get cells() { return this.model.getAllCells(); }
 }
