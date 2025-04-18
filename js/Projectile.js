@@ -73,6 +73,8 @@ class Projectile {
             dx = Math.cos(this.target.directionAngle);
             dy = Math.sin(this.target.directionAngle);
             
+            // Ces vecteurs sont déjà normalisés (longueur = 1) car cosinus et sinus sont dans [-1, 1]
+            
             // Calculer la distance avec la cible pour vérifier la collision
             const targetDx = this.target.x - this.x;
             const targetDy = this.target.y - this.y;
@@ -83,9 +85,11 @@ class Projectile {
             dy = this.target.y - this.y;
             distance = Math.sqrt(dx * dx + dy * dy);
             
-            // Normaliser la direction
-            dx = dx / distance;
-            dy = dy / distance;
+            // Normaliser la direction pour avoir un vecteur unitaire
+            if (distance > 0) { // Éviter la division par zéro
+                dx = dx / distance;
+                dy = dy / distance;
+            }
         }
 
         // Si le projectile est suffisamment proche de la cible (collision)
@@ -118,13 +122,13 @@ class Projectile {
         // Convertir deltaTime en secondes (car il est en millisecondes)
         const deltaTimeInSeconds = deltaTime / 1000;
         
-        // Calculer le déplacement à vitesse constante en utilisant deltaTime en secondes
-        // La vitesse est supposée être en pixels par seconde
-        const moveX = dx * this.speed * deltaTimeInSeconds;
-        const moveY = dy * this.speed * deltaTimeInSeconds;
+        // Calculer la distance totale à parcourir durant cette frame
+        const distanceToMove = this.speed * deltaTimeInSeconds;
         
-        this.x += moveX;
-        this.y += moveY;
+        // Appliquer le mouvement en préservant la direction mais en assurant une vitesse constante
+        // quelle que soit la direction (diagonale ou axiale)
+        this.x += dx * distanceToMove;
+        this.y += dy * distanceToMove;
         
         // Mettre à jour la position visuelle
         this.element.style.left = `${this.x - this.size / 2}px`;
