@@ -1,0 +1,82 @@
+/* Tower styles */
+.tower {
+    position: absolute;
+    border-radius: 50%;
+    cursor: grab;
+    z-index: 10;
+    transition: transform 0.1s ease-out;
+    transform-origin: center center;
+}
+
+.tower.selected {
+    box-shadow: 0 0 0 3px yellow;
+    z-index: 20;
+}
+
+.tower-range {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px dashed rgba(0, 0, 0, 0.2);
+    z-index: 5;
+    pointer-events: none;
+}
+
+/* Style spécifique pour la portée affichée au survol */
+.tower-range.hover-range {
+    border: 2px dashed rgba(70, 130, 180, 0.6);
+    background-color: rgba(70, 130, 180, 0.1);
+    animation: pulse-range 1.5s infinite alternate;
+}
+
+.tower-selection {
+    padding: 10px;
+    background-color: #34495e;
+    color: white;
+}
+
+#tower-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.tower-button {
+    padding: 5px 10px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: grab;
+    user-select: none;
+    transition: background-color 0.3s;
+}
+
+.tower-button:hover {
+    background-color: #2980b9;
+}
+
+.tower-button:active {
+    cursor: grabbing;
+}
+
+.placeholder-tower {
+    opacity: 0.6;
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 30;
+}
+
+.dragging-tower {
+    cursor: grabbing !important;
+}
+
+.tower-placing-animation {
+    position: absolute;
+    border-radius: 5px;
+    background-color: transparent;
+    border: 2px solid #2ecc71;
+    pointer-events: none;
+    z-index: 25;
+    animation: placeTower 0.3s ease-out;
+}

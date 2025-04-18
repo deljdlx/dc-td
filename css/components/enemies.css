@@ -1,0 +1,41 @@
+/* Enemy styles */
+.enemy {
+    position: absolute;
+    border-radius: 50%;
+    z-index: 8;
+    transition: left 0.1s linear, top 0.1s linear;
+}
+
+.health-bar {
+    position: absolute;
+    height: 4px;
+    background-color: red;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.health-bar-fill {
+    height: 100%;
+    background-color: green;
+}
+
+/* Style pour les effets visuels de dégâts */
+.enemy-hit {
+    animation: hit-flash 0.2s ease-out;
+}
+
+/* Style pour les ennemis ralentis */
+.enemy-slowed {
+    filter: brightness(0.7) saturate(1.5);
+}
+
+/* Style pour les ennemis avec effets spéciaux */
+.enemy-effect {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: -1;
+}
