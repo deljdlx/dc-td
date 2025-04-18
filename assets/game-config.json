@@ -29,7 +29,7 @@
       "cost": 50,
       "color": "#27ae60",
       "projectileColor": "#2ecc71",
-      "projectileSpeed": 100,
+      "projectileSpeed": 200,
       "splashRadius": 0,
       "splashDamagePercent": 100,
       "multiShot": 1,

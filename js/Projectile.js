@@ -96,21 +96,24 @@ class Projectile {
         // La distance de collision est le rayon de l'ennemi
         const hitDistance = this.target.size / 2;
         
-        // Convertir deltaTime en secondes (car il est en millisecondes)
-        const deltaTimeInSeconds = deltaTime / 1000;
+        // NOUVELLE APPROCHE: Utiliser une vitesse fixe indépendante du deltaTime
+        // Cela rendra le mouvement plus régulier
+        const fixedDistancePerFrame = this.speed / 60; // En supposant une animation à ~60 FPS
         
-        // Calculer la distance totale que le projectile pourrait parcourir durant cette frame
-        const maxDistanceToMove = this.speed * deltaTimeInSeconds;
-        
-        // SOLUTION CLEF : Calculer la distance réelle à parcourir, en tenant compte de la collision
-        // Le projectile ne dépassera jamais la cible, il s'arrêtera exactement à sa surface
-        let actualDistanceToMove;
-        
-        // Vérifier si le projectile va atteindre ou dépasser la cible pendant cette frame
-        if (distance <= hitDistance && 0) {
-            // Le projectile est déjà à l'intérieur de la zone de collision
-            actualDistanceToMove = 0;
-
+        // Vérifier d'abord si on va atteindre la cible pendant cette frame
+        if (distance <= fixedDistancePerFrame + hitDistance) {
+            // Le projectile va atteindre la cible pendant cette frame
+            // Placer le projectile au bord de la cible pour un impact visuel cohérent
+            if (distance > hitDistance) {
+                const ratio = (distance - hitDistance) / distance;
+                this.x = this.x + (this.target.x - this.x) * ratio;
+                this.y = this.y + (this.target.y - this.y) * ratio;
+            }
+            
+            // Mettre à jour la position visuelle
+            this.element.style.left = `${this.x}px`;
+            this.element.style.top = `${this.y}px`;
+            
             // Déclencher la collision
             this.hit = true;
 
@@ -132,28 +135,33 @@ class Projectile {
 
             return true;
         } else {
-            // Le projectile ne va pas atteindre la cible pendant cette frame
-            // Il se déplace normalement
-            actualDistanceToMove = maxDistanceToMove;
-
-            // Appliquer le mouvement
-            this.x += dx * actualDistanceToMove;
-            this.y += dy * actualDistanceToMove;
-
-            // Mettre à jour la position visuelle
-            this.element.style.left = `${this.x - this.size / 2}px`;
-            this.element.style.top = `${this.y - this.size / 2}px`;
+            // Déplacement normal si on n'atteint pas la cible pendant cette frame
+            this.x += dx * fixedDistancePerFrame;
+            this.y += dy * fixedDistancePerFrame;
+            
+            // Mettre à jour la position visuelle sans utiliser de transition CSS
+            // pour éviter des problèmes d'interpolation qui pourraient causer l'accélération
+            this.element.style.transition = 'none';
+            this.element.style.left = `${this.x}px`;
+            this.element.style.top = `${this.y}px`;
+            
+            // Réactiver la transition après la mise à jour
+            setTimeout(() => {
+                if (this.element) {
+                    this.element.style.transition = '';
+                }
+            }, 0);
         }
 
         // Vérifier si le projectile est sorti des limites du jeu
         const gameWidth = this.gameBoard.clientWidth;
         const gameHeight = this.gameBoard.clientHeight;
-
+        
         if (this.x < -50 || this.x > gameWidth + 50 || this.y < -50 || this.y > gameHeight + 50) {
             this.remove();
             return true;
         }
-
+        
         return false;
     }
     
