@@ -1,3 +1,9 @@
+:root {
+    /* Variables de couleur spécifiques aux ennemis */
+    --color-enemy-health-bg: red;
+    --color-enemy-health-fill: green;
+}
+
 /* Enemy styles */
 .enemy {
     position: absolute;
@@ -9,7 +15,7 @@
 .health-bar {
     position: absolute;
     height: 4px;
-    background-color: red;
+    background-color: var(--color-enemy-health-bg);
     top: -8px;
     left: 50%;
     transform: translateX(-50%);
@@ -17,7 +23,7 @@
 
 .health-bar-fill {
     height: 100%;
-    background-color: green;
+    background-color: var(--color-enemy-health-fill);
 }
 
 /* Style pour les effets visuels de dégâts */

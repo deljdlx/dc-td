@@ -12,24 +12,24 @@
 }
 
 .path {
-    background-color: #795548;
+    background-color: var(--color-path);
 }
 
 .buildable {
     cursor: pointer;
-    background-color: #8BC34A;
+    background-color: var(--color-buildable);
 }
 
 .buildable:hover {
-    background-color: rgba(0, 255, 0, 0.3);
+    background-color: var(--color-buildable-hover);
 }
 
 .start-point {
-    background-color: #3498db;
+    background-color: var(--color-start-point);
     border-radius: 50%;
 }
 
 .end-point {
-    background-color: #e74c3c;
+    background-color: var(--color-end-point);
     border-radius: 50%;
 }

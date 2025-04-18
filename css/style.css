@@ -1,3 +1,42 @@
+:root {
+    /* Couleurs de base */
+    --color-primary: #3498db;
+    --color-secondary: #2c3e50;
+    --color-accent: #e74c3c;
+    --color-success: #2ecc71;
+    --color-warning: #f1c40f;
+    --color-danger: #e74c3c;
+    
+    /* Couleurs pour le terrain */
+    --color-background: #f0f0f0;
+    --color-container: #fff;
+    --color-game-board: #ecf0f1;
+    
+    /* Couleurs pour la carte */
+    --color-path: #795548;
+    --color-buildable: #8BC34A;
+    --color-buildable-hover: rgba(0, 255, 0, 0.3);
+    --color-start-point: #3498db;
+    --color-end-point: #e74c3c;
+    
+    /* Couleurs pour l'interface */
+    --color-hud-bg: #2c3e50;
+    --color-tower-selection: #34495e;
+    --color-tower-button: #3498db;
+    --color-tower-button-hover: #2980b9;
+    --color-start-wave-button: #e74c3c;
+    --color-start-wave-hover: #c0392b;
+    
+    /* Couleurs pour les éléments de jeu */
+    --color-tower-selected: #f1c40f;
+    --color-valid-placement: rgba(0, 255, 0, 0.3);
+    --color-invalid-placement: rgba(255, 0, 0, 0.3);
+    
+    /* Couleurs pour les animations */
+    --color-tower-placement: #2ecc71;
+    --color-tower-placement-mid: #27ae60;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -6,7 +45,7 @@
 
 body {
     font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
+    background-color: var(--color-background);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -16,7 +55,7 @@ body {
 .game-container {
     display: flex;
     flex-direction: column;
-    background-color: #fff;
+    background-color: var(--color-container);
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -26,12 +65,12 @@ body {
     display: flex;
     justify-content: space-between;
     padding: 10px;
-    background-color: #2c3e50;
+    background-color: var(--color-hud-bg);
     color: white;
 }
 
 .game-board {
-    background-color: #ecf0f1;
+    background-color: var(--color-game-board);
     width: 800px;
     height: 500px;
     position: relative;
@@ -51,31 +90,31 @@ body {
 }
 
 .path {
-    background-color: #795548;
+    background-color: var(--color-path);
 }
 
 .buildable {
     cursor: pointer;
-    background-color: #8BC34A;
+    background-color: var(--color-buildable);
 }
 
 .buildable:hover {
-    background-color: rgba(0, 255, 0, 0.3);
+    background-color: var(--color-buildable-hover);
 }
 
 .start-point {
-    background-color: #3498db;
+    background-color: var(--color-start-point);
     border-radius: 50%;
 }
 
 .end-point {
-    background-color: #e74c3c;
+    background-color: var(--color-end-point);
     border-radius: 50%;
 }
 
 .tower-selection {
     padding: 10px;
-    background-color: #34495e;
+    background-color: var(--color-tower-selection);
     color: white;
 }
 
@@ -87,7 +126,7 @@ body {
 
 .tower-button {
     padding: 5px 10px;
-    background-color: #3498db;
+    background-color: var(--color-tower-button);
     color: white;
     border: none;
     border-radius: 5px;
@@ -97,7 +136,7 @@ body {
 }
 
 .tower-button:hover {
-    background-color: #2980b9;
+    background-color: var(--color-tower-button-hover);
 }
 
 .tower-button:active {
@@ -106,7 +145,7 @@ body {
 
 button#start-wave {
     padding: 5px 10px;
-    background-color: #e74c3c;
+    background-color: var(--color-start-wave-button);
     color: white;
     border: none;
     border-radius: 5px;
@@ -114,11 +153,11 @@ button#start-wave {
 }
 
 button#start-wave:hover {
-    background-color: #c0392b;
+    background-color: var(--color-start-wave-hover);
 }
 
 .selected {
-    border: 2px solid #f1c40f;
+    border: 2px solid var(--color-tower-selected);
 }
 
 .tower {
@@ -131,7 +170,7 @@ button#start-wave:hover {
 }
 
 .tower.selected {
-    box-shadow: 0 0 0 3px yellow;
+    box-shadow: 0 0 0 3px var(--color-tower-selected);
     z-index: 20;
 }
 
@@ -244,11 +283,11 @@ button#start-wave:hover {
 }
 
 .valid-cell {
-    background-color: rgba(0, 255, 0, 0.3) !important;
+    background-color: var(--color-valid-placement) !important;
 }
 
 .invalid-cell {
-    background-color: rgba(255, 0, 0, 0.3) !important;
+    background-color: var(--color-invalid-placement) !important;
 }
 
 .dragging-tower {
@@ -259,7 +298,7 @@ button#start-wave:hover {
     position: absolute;
     border-radius: 5px;
     background-color: transparent;
-    border: 2px solid #2ecc71;
+    border: 2px solid var(--color-tower-placement);
     pointer-events: none;
     z-index: 25;
     animation: placeTower 0.3s ease-out;
@@ -269,16 +308,16 @@ button#start-wave:hover {
     0% {
         transform: scale(0.5);
         opacity: 0.2;
-        border-color: #2ecc71;
+        border-color: var(--color-tower-placement);
     }
     50% {
         opacity: 0.7;
-        border-color: #27ae60;
+        border-color: var(--color-tower-placement-mid);
     }
     100% {
         transform: scale(1.1);
         opacity: 0;
-        border-color: #2ecc71;
+        border-color: var(--color-tower-placement);
     }
 }
 

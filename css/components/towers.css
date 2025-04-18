@@ -2,7 +2,7 @@
 .tower {
     position: absolute;
     border-radius: 50%;
-    background-color: #3498db;
+    background-color: var(--color-primary);
     z-index: 2;
     cursor: pointer;
     display: flex;
@@ -55,11 +55,11 @@
 }
 
 .tower-option.basic {
-    background-color: #3498db;
+    background-color: var(--color-primary);
 }
 
 .tower-option.cannon {
-    background-color: #e74c3c;
+    background-color: var(--color-accent);
 }
 
 .tower-option.sniper {

@@ -1,3 +1,8 @@
+:root {
+    /* Variables de couleur spécifiques aux projectiles */
+    --color-projectile-shadow: rgba(255, 255, 255, 0.5);
+}
+
 /* Projectile styles */
 .projectile {
     position: absolute;
@@ -7,7 +12,7 @@
     z-index: 9;
     transform: translate(-50%, -50%);
     transition: left 0.2s cubic-bezier(0.4, 0, 0.2, 1), top 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 5px var(--color-projectile-shadow);
     will-change: transform, left, top;
     filter: drop-shadow(0 0 2px currentColor);
 }
